@@ -4,7 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Bite Me Not - Fasting Tracker</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+
+    <meta name="description" content="A simple fasting tracker app.">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Bite Me Not">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#3b82f6">
+    <link rel="icon" href="https://placehold.co/32x32/3b82f6/FFFFFF?text=F" sizes="32x32" type="image/png">
+     <link rel="icon" href="https://placehold.co/192x192/3b82f6/FFFFFF?text=F" sizes="192x192" type="image/png">
+    <link rel="apple-touch-icon" href="https://placehold.co/180x180/2563eb/FFFFFF?text=BMN"> <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -52,8 +61,8 @@
         .streak-tier-3 { border-color: #ffb74d; background-color: rgba(255, 183, 77, 0.2); }
 
         /* Fasting Stage Indicator Styles */
-        #fasting-stage-indicator { padding: 0.4rem 1rem; border-radius: 0.5rem; font-size: 0.8rem; font-weight: 500; text-align: center; margin-bottom: 0.75rem; min-height: 34px; display: inline-block; transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, visibility 0s linear 0.3s; border: 1px solid transparent; visibility: hidden; }
-        #fasting-stage-indicator.is-visible { visibility: visible; transition-delay: 0s; }
+        #fasting-stage-indicator { padding: 0.4rem 1rem; border-radius: 0.5rem; font-size: 0.8rem; font-weight: 500; text-align: center; margin-bottom: 0.75rem; min-height: 34px; display: inline-block; transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, visibility 0s linear 0.3s, opacity 0.3s ease; border: 1px solid transparent; visibility: hidden; opacity: 0; }
+        #fasting-stage-indicator.is-visible { visibility: visible; opacity: 1; transition-delay: 0s; }
         .stage-default { color: rgba(255, 255, 255, 0.8); background-color: transparent; border-color: transparent; }
         .stage-anabolic { background-color: rgba(100, 181, 246, 0.15); border-color: rgba(100, 181, 246, 0.4); color: #e3f2fd; }
         .stage-catabolic { background-color: rgba(77, 208, 225, 0.15); border-color: rgba(77, 208, 225, 0.4); color: #e0f7fa; }
@@ -165,7 +174,7 @@
              </div>
              <p id="quote-display" class="flex-shrink-0"></p>
              <div id="fasting-stage-indicator" class="stage-default flex-shrink-0"></div>
-             <div class="flex-grow"></div>
+            <div class="flex-grow"></div>
             <button id="start-stop-button" class="font-bold py-3 px-8 rounded-full shadow-md transition duration-200 focus:outline-none focus:ring-2 focus:ring-blue-300 focus:ring-opacity-50 mt-auto mb-2 flex-shrink-0"> Start Fasting </button> </main>
 
         <footer class="text-center flex-shrink-0 pb-1">
@@ -217,7 +226,7 @@
 
         // Funny Quotes Array
         const funnyQuotes = [ "Are you hungry, or just bored? Let's be honest...", "Your stomach isn't growling, it's applauding your willpower.", "Think of all the money you're saving on snacks right now.", "Hunger is just your fat cells crying. Let them weep.", "Water: Because adulting is hard and sometimes you just need to feel full.", "That cookie looks good, but have you tried fitting into those jeans?", "My stomach rumble could be the next hit single.", "Is it lunchtime yet? No? Okay, checking again in 5 minutes.", "Keep calm and fast on... or maybe just drink some water.", "Remember why you started... also, remember where you put the water bottle.", "My fridge just whispered 'chocolate'... I told it to shut up.", "Relationship status: Committed to my fasting window.", "Pretty sure my stomach speaks whale now.", "Is this autophagy or am I just hangry?", "My superpower is turning water into... more trips to the bathroom.", "Currently fueled by willpower and coffee. Mostly coffee.", "My snack drawer is starting to feel neglected.", "I miss chewing. Is that weird?", "Fasting: Proving I have more self-control than my browser history suggests.", "Running on empty? Nah, just optimizing.", "My brain says 'salad', my stomach says 'everything'.", "This must be how plants feel. Photosynthesis, anyone?", "I'm not saying it's aliens... but it's aliens (making me hungry).", "Pretty sure I can hear colors now.", "If you see me talking to a donut, mind your business.", "My grocery bill is looking great, though!", "Just waiting for my six-pack... of water.", "Current mood: Calculating how many hours until food.", "My body is a temple... currently under renovation (and closed for lunch).", "Who needs breakfast when you have... existential thoughts?", "Discipline is choosing between what you want now and what you want most.", "You are stronger than your cravings. Probably.", "Every hour fasted is an investment in yourself. Keep the receipts.", "Trust the process. Your body knows what to do (mostly).", "Small progress is still progress. Keep going!", "Focus on how good you'll feel afterwards. Or at least, less hungry.", "Embrace the challenge, unlock the benefits. And maybe unlock the fridge later.", "Today's discomfort is tomorrow's strength (and maybe tomorrow's pizza).", "You've got this! One hour at a time.", "Health is wealth. Keep investing (in water).", "Let your body do its amazing cleanup work. It's like Marie Kondo in there.", "Stay hydrated, stay focused, stay awesome.", "The goal is progress, not perfection. Unless perfection involves donuts.", "Building resilience, one fast at a time.", "Your future self will thank you. Maybe buy them a snack.", "It's not about deprivation, it's about optimization... and dreaming of food.", "Unlock your potential. Keep fasting smart.", "Feeling good starts from within. Specifically, within the stomach... eventually.", "Push through! The benefits are worth it. Science says so. Probably.", "Master your hunger, master yourself. Or at least master the art of distraction.", "Just breathe. And maybe smell some coffee.", "Patience, young grasshopper. Food comes to those who wait.", "You're basically a superhero powered by stored energy.", "Think of autophagy as Pac-Man eating the bad stuff in your cells." ];
-        const QUOTE_INDICES_KEY = 'fastingQuoteIndices'; // --- NEW --- Key for quote tracking
+        const QUOTE_INDICES_KEY = 'fastingQuoteIndices';
 
         // Circle Progress Setup
         const radius = progressCircle.r.baseVal.value; const circumference = 2 * Math.PI * radius; progressCircle.style.strokeDasharray = `${circumference} ${circumference}`; progressCircle.style.strokeDashoffset = circumference;
@@ -233,15 +242,7 @@
         function isSameDay(date1, date2) { if (!(date1 instanceof Date) || !(date2 instanceof Date) || isNaN(date1) || isNaN(date2)) { return false; } return date1.getFullYear() === date2.getFullYear() && date1.getMonth() === date2.getMonth() && date1.getDate() === date2.getDate(); }
         function getYesterday() { const yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1); yesterday.setHours(0, 0, 0, 0); return yesterday; }
         function formatPredictedEndTime(date) { if (!(date instanceof Date) || isNaN(date)) { return ''; } const today = new Date(); const tomorrow = new Date(); tomorrow.setDate(today.getDate() + 1); let dayString = ''; if (isSameDay(date, today)) { dayString = 'Today'; } else if (isSameDay(date, tomorrow)) { dayString = 'Tomorrow'; } else { dayString = date.toLocaleDateString(undefined, { weekday: 'short', month: 'numeric', day: 'numeric' }); } const timeString = date.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit', hour12: true }); return `Goal Ends: ${dayString} at ${timeString}`; }
-        // --- NEW --- Fisher-Yates Shuffle function
-        function shuffleArray(array) {
-            for (let i = array.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [array[i], array[j]] = [array[j], array[i]]; // Swap elements
-            }
-            return array;
-        }
-        // --- End Utility ---
+        function shuffleArray(array) { for (let i = array.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [array[i], array[j]] = [array[j], array[i]]; } return array; }
 
         // LocalStorage Functions
         function saveState() { try { localStorage.setItem(APP_STATE_KEY, JSON.stringify(appState)); } catch (e) { console.error("Error saving state:", e); } }
@@ -281,55 +282,8 @@
         function calculateCurrentStreak() { const history = getHistory(); if (history.length === 0) return 0; let streak = 0; let expectedDate = getYesterday(); const completedFastDates = new Set(); history.forEach(fast => { const endDate = new Date(fast.endTime); completedFastDates.add(endDate.toLocaleDateString()); }); const todayStr = (new Date()).toLocaleDateString(); let fastEndedToday = completedFastDates.has(todayStr); if (completedFastDates.has(expectedDate.toLocaleDateString())) { streak = 1; while (true) { expectedDate.setDate(expectedDate.getDate() - 1); if (completedFastDates.has(expectedDate.toLocaleDateString())) { streak++; } else { break; } } } else { streak = fastEndedToday ? 1 : 0; } console.log(`Calculated streak: ${streak}`); return streak; }
         function updateStreakDisplay() { const streak = calculateCurrentStreak(); streakNumber.textContent = streak; streakDisplay.classList.remove('streak-tier-0', 'streak-tier-1', 'streak-tier-2', 'streak-tier-3'); if (streak === 0) { streakDisplay.classList.add('streak-tier-0'); } else if (streak >= 1 && streak <= 6) { streakDisplay.classList.add('streak-tier-1'); } else if (streak >= 7 && streak <= 13) { streakDisplay.classList.add('streak-tier-2'); } else { streakDisplay.classList.add('streak-tier-3'); } console.log(`Updated streak display: ${streak} days, Tier class added.`); }
 
-        // --- MODIFIED --- Quote Display Logic with Cycling
-        function updateQuoteDisplay() {
-            if (!quoteDisplay || funnyQuotes.length === 0) return;
-
-            let availableIndices = [];
-            try {
-                const storedIndices = localStorage.getItem(QUOTE_INDICES_KEY);
-                if (storedIndices) {
-                    availableIndices = JSON.parse(storedIndices);
-                }
-            } catch (e) {
-                console.error("Error reading quote indices from localStorage", e);
-                availableIndices = []; // Reset if error
-            }
-
-            if (!Array.isArray(availableIndices) || availableIndices.length === 0) {
-                console.log("Quote cycle complete or first load. Resetting and shuffling.");
-                // Create array of all indices [0, 1, 2, ..., n-1]
-                availableIndices = Array.from(funnyQuotes.keys());
-                shuffleArray(availableIndices); // Shuffle the full list
-            }
-
-            // Pick a random index *from the available indices array*
-            const randomIndexInAvailable = Math.floor(Math.random() * availableIndices.length);
-            // Get the actual quote index from that position
-            const quoteIndex = availableIndices[randomIndexInAvailable];
-
-            // Remove the used index from the available list
-            availableIndices.splice(randomIndexInAvailable, 1);
-
-            // Save the updated available list
-            try {
-                localStorage.setItem(QUOTE_INDICES_KEY, JSON.stringify(availableIndices));
-            } catch (e) {
-                 console.error("Error saving quote indices to localStorage", e);
-            }
-
-            // Display the quote
-            if (quoteIndex >= 0 && quoteIndex < funnyQuotes.length) {
-                 quoteDisplay.textContent = funnyQuotes[quoteIndex];
-                 console.log(`Quote updated. Index: ${quoteIndex}. Remaining: ${availableIndices.length}`);
-            } else {
-                 console.error("Invalid quote index selected.");
-                 // Fallback to pure random if something went wrong
-                 const fallbackIndex = Math.floor(Math.random() * funnyQuotes.length);
-                 quoteDisplay.textContent = funnyQuotes[fallbackIndex];
-            }
-        }
-        // --- End Quote Display ---
+        // Quote Display Logic
+        function updateQuoteDisplay() { if (quoteDisplay && funnyQuotes.length > 0) { let availableIndices = []; try { const storedIndices = localStorage.getItem(QUOTE_INDICES_KEY); if (storedIndices) { availableIndices = JSON.parse(storedIndices); } } catch (e) { console.error("Error reading quote indices", e); availableIndices = []; } if (!Array.isArray(availableIndices) || availableIndices.length === 0) { console.log("Resetting quote cycle."); availableIndices = Array.from(funnyQuotes.keys()); shuffleArray(availableIndices); } const randomIndexInAvailable = Math.floor(Math.random() * availableIndices.length); const quoteIndex = availableIndices[randomIndexInAvailable]; availableIndices.splice(randomIndexInAvailable, 1); try { localStorage.setItem(QUOTE_INDICES_KEY, JSON.stringify(availableIndices)); } catch (e) { console.error("Error saving quote indices", e); } if (quoteIndex >= 0 && quoteIndex < funnyQuotes.length) { quoteDisplay.textContent = funnyQuotes[quoteIndex]; console.log(`Quote updated. Index: ${quoteIndex}. Remaining: ${availableIndices.length}`); } else { console.error("Invalid quote index."); const fallbackIndex = Math.floor(Math.random() * funnyQuotes.length); quoteDisplay.textContent = funnyQuotes[fallbackIndex]; } } }
 
         // Event Listeners
         fastingStyleSelect.addEventListener('change', (event) => { const styleValue = event.target.value; const previousHours = appState.selectedFastHours; if (styleValue === 'custom') { console.log("Custom duration selected in settings."); showCustomDurationModal(previousHours); } else { const hours = parseInt(styleValue, 10); if (!isNaN(hours)) { appState.selectedFastHours = hours; console.log(`Selected default fast duration: ${appState.selectedFastHours} hours`); saveState(); } else { console.error("Invalid standard duration selected:", styleValue); } } });
@@ -373,7 +327,7 @@
             historyPanel.classList.remove('is-active');
             hideAllModals();
             updateStreakDisplay();
-            updateQuoteDisplay(); // Show initial quote
+            updateQuoteDisplay();
             console.log("App Initialized.");
         }
         document.addEventListener('DOMContentLoaded', initializeApp);
@@ -382,3 +336,4 @@
 
 </body>
 </html>
+
