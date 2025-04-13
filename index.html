@@ -73,6 +73,10 @@
         .stage-autophagy { background-color: rgba(224, 118, 118, 0.15); border-color: rgba(224, 118, 118, 0.4); color: #ffebee; }
         .stage-goal-reached { background-color: rgba(250, 250, 210, 0.2); border-color: rgba(250, 250, 210, 0.6); color: #EAECCC; font-weight: 600; }
 
+        /* Predicted End Time Style */
+        #predicted-end-time { font-size: 0.75rem; color: rgba(255, 255, 255, 0.7); margin-top: 0.25rem; margin-bottom: 0.75rem; min-height: 1.2em; visibility: hidden; opacity: 0; transition: opacity 0.3s ease, visibility 0s linear 0.3s; }
+        #predicted-end-time.is-visible { visibility: visible; opacity: 1; transition-delay: 0s; }
+
         /* Quote Display Style */
         #quote-display { font-size: 0.75rem; font-style: italic; color: rgba(255, 255, 255, 0.6); margin-top: 0.5rem; margin-bottom: 0.75rem; padding: 0 1rem; min-height: 2.5em; max-width: 90%; text-align: center; }
 
@@ -142,8 +146,6 @@
 
         /* Settings Modal */
         #settings-modal-overlay .modal-content { width: auto; max-width: 300px; padding: 1.25rem; }
-
-        /* --- REMOVED --- Debug Output Style --- */
 
     </style>
 </head>
@@ -218,8 +220,8 @@
             </div>
         </div>
 
-        </div> <script>
-        // DOM Elements (Removed debugOutput)
+    </div> <script>
+        // DOM Elements
         const appContainer = document.querySelector('.app-container'); const htmlElement = document.documentElement; const fastingStyleSelect = document.getElementById('fasting-style'); const progressCircle = document.getElementById('progress-circle'); const progressSvg = document.getElementById('progress-svg'); const timeDisplay = document.getElementById('time-display'); const timeDisplayText = timeDisplay.querySelector('span:first-child'); const stageIndicator = document.getElementById('fasting-stage-indicator'); const startStopButton = document.getElementById('start-stop-button'); const viewHistoryButton = document.getElementById('view-history-button'); const historyPanel = document.getElementById('history-panel'); const closeHistoryButton = document.getElementById('close-history-button'); const historyList = document.getElementById('history-list'); const addManualFastButton = document.getElementById('add-manual-fast-button'); const noHistoryMessage = document.getElementById('no-history-message'); const confirmDeleteModalOverlay = document.getElementById('confirm-delete-modal-overlay'); const confirmDeleteYesButton = document.getElementById('confirm-delete-yes-button'); const confirmDeleteNoButton = document.getElementById('confirm-delete-no-button'); const addModalOverlay = document.getElementById('add-modal-overlay'); const addSaveButton = document.getElementById('add-save-button'); const addCancelButton = document.getElementById('add-cancel-button'); const addStartTimeInput = document.getElementById('add-start-time'); const addEndTimeInput = document.getElementById('add-end-time'); const addErrorMessage = document.getElementById('add-error-message'); const editModalOverlay = document.getElementById('edit-modal-overlay'); const editSaveButton = document.getElementById('edit-save-button'); const editCancelButton = document.getElementById('edit-cancel-button'); const editStartTimeInput = document.getElementById('edit-start-time'); const editEndTimeInput = document.getElementById('edit-end-time'); const editFastIdInput = document.getElementById('edit-fast-id'); const editErrorMessage = document.getElementById('edit-error-message'); const customDurationModalOverlay = document.getElementById('custom-duration-modal-overlay'); const customHoursInput = document.getElementById('custom-hours-input'); const customSetButton = document.getElementById('custom-set-button'); const customCancelButton = document.getElementById('custom-cancel-button'); const customErrorMessage = document.getElementById('custom-error-message'); const prevWeekButton = document.getElementById('prev-week-button'); const nextWeekButton = document.getElementById('next-week-button'); const weekHeader = document.getElementById('week-header');
         const streakDisplay = document.getElementById('streak-display'); const streakNumber = document.getElementById('streak-number');
         const infoButton = document.getElementById('info-button'); const infoModalOverlay = document.getElementById('info-modal-overlay'); const infoModalTextContent = document.getElementById('info-modal-text-content'); const infoCloseButton = document.getElementById('info-close-button');
@@ -229,14 +231,10 @@
 
         // State
         const APP_STATE_KEY = 'fastingTrackerState'; const HISTORY_KEY = 'fastingHistory'; let appState = { isFasting: false, fastStartTime: null, selectedFastHours: 16 }; let animationFrameId = null; let lastTextUpdateTimestamp = 0; let fastIdToDelete = null; let statusTimeout = null; let currentWeekStartDate = null;
-        // Removed frameCounter
 
         // Funny Quotes Array
         const funnyQuotes = [ "Are you hungry, or just bored? Let's be honest...", "Your stomach isn't growling, it's applauding your willpower.", "Think of all the money you're saving on snacks right now.", "Hunger is just your fat cells crying. Let them weep.", "Water: Because adulting is hard and sometimes you just need to feel full.", "That cookie looks good, but have you tried fitting into those jeans?", "My stomach rumble could be the next hit single.", "Is it lunchtime yet? No? Okay, checking again in 5 minutes.", "Keep calm and fast on... or maybe just drink some water.", "Remember why you started... also, remember where you put the water bottle.", "My fridge just whispered 'chocolate'... I told it to shut up.", "Relationship status: Committed to my fasting window.", "Pretty sure my stomach speaks whale now.", "Is this autophagy or am I just hangry?", "My superpower is turning water into... more trips to the bathroom.", "Currently fueled by willpower and coffee. Mostly coffee.", "My snack drawer is starting to feel neglected.", "I miss chewing. Is that weird?", "Fasting: Proving I have more self-control than my browser history suggests.", "Running on empty? Nah, just optimizing.", "My brain says 'salad', my stomach says 'everything'.", "This must be how plants feel. Photosynthesis, anyone?", "I'm not saying it's aliens... but it's aliens (making me hungry).", "Pretty sure I can hear colors now.", "If you see me talking to a donut, mind your business.", "My grocery bill is looking great, though!", "Just waiting for my six-pack... of water.", "Current mood: Calculating how many hours until food.", "My body is a temple... currently under renovation (and closed for lunch).", "Who needs breakfast when you have... existential thoughts?", "Discipline is choosing between what you want now and what you want most.", "You are stronger than your cravings. Probably.", "Every hour fasted is an investment in yourself. Keep the receipts.", "Trust the process. Your body knows what to do (mostly).", "Small progress is still progress. Keep going!", "Focus on how good you'll feel afterwards. Or at least, less hungry.", "Embrace the challenge, unlock the benefits. And maybe unlock the fridge later.", "Today's discomfort is tomorrow's strength (and maybe tomorrow's pizza).", "You've got this! One hour at a time.", "Health is wealth. Keep investing (in water).", "Let your body do its amazing cleanup work. It's like Marie Kondo in there.", "Stay hydrated, stay focused, stay awesome.", "The goal is progress, not perfection. Unless perfection involves donuts.", "Building resilience, one fast at a time.", "Your future self will thank you. Maybe buy them a snack.", "It's not about deprivation, it's about optimization... and dreaming of food.", "Unlock your potential. Keep fasting smart.", "Feeling good starts from within. Specifically, within the stomach... eventually.", "Push through! The benefits are worth it. Science says so. Probably.", "Master your hunger, master yourself. Or at least master the art of distraction.", "Just breathe. And maybe smell some coffee.", "Patience, young grasshopper. Food comes to those who wait.", "You're basically a superhero powered by stored energy.", "Think of autophagy as Pac-Man eating the bad stuff in your cells." ];
         const QUOTE_INDICES_KEY = 'fastingQuoteIndices';
-
-        // --- REMOVED --- Debug Logging Function
-        // function debugLog(message) { ... }
 
         // Circle Progress Setup
         const radius = progressCircle.r.baseVal.value; const circumference = 2 * Math.PI * radius; progressCircle.style.strokeDasharray = `${circumference} ${circumference}`; progressCircle.style.strokeDashoffset = circumference;
@@ -251,6 +249,7 @@
         function getDayName(date) { if (!(date instanceof Date) || isNaN(date)) { return ''; } return date.toLocaleDateString(undefined, { weekday: 'long' }); }
         function isSameDay(date1, date2) { if (!(date1 instanceof Date) || !(date2 instanceof Date) || isNaN(date1) || isNaN(date2)) { return false; } return date1.getFullYear() === date2.getFullYear() && date1.getMonth() === date2.getMonth() && date1.getDate() === date2.getDate(); }
         function getYesterday() { const yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1); yesterday.setHours(0, 0, 0, 0); return yesterday; }
+        function formatPredictedEndTime(date) { if (!(date instanceof Date) || isNaN(date)) { return ''; } const today = new Date(); const tomorrow = new Date(); tomorrow.setDate(today.getDate() + 1); let dayString = ''; if (isSameDay(date, today)) { dayString = 'Today'; } else if (isSameDay(date, tomorrow)) { dayString = 'Tomorrow'; } else { dayString = date.toLocaleDateString(undefined, { weekday: 'short', month: 'numeric', day: 'numeric' }); } const timeString = date.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit', hour12: true }); return `Goal Ends: ${dayString} at ${timeString}`; }
         function shuffleArray(array) { for (let i = array.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [array[i], array[j]] = [array[j], array[i]]; } return array; }
 
         // LocalStorage Functions
@@ -270,10 +269,91 @@
             if (message && duration > 0) { stageIndicator.classList.add('is-visible'); if (statusTimeout) clearTimeout(statusTimeout); statusTimeout = setTimeout(() => { if (!appState.isFasting) updateUI(); statusTimeout = null; }, duration); } } catch(e) { console.error("Error in updateUI:", e); } }
 
         // Animation Loop
-        function animationLoop(timestamp) { try { if (!appState.isFasting || !appState.fastStartTime) { animationFrameId = null; return; } const now = Date.now(); const elapsedMs = now - appState.fastStartTime.getTime(); const elapsedHours = elapsedMs / (1000 * 60 * 60); const goalMs = appState.selectedFastHours * 60 * 60 * 1000; const goalReached = goalMs > 0 && elapsedMs >= goalMs; const percentComplete = (goalMs > 0) ? Math.min(100, (elapsedMs / goalMs) * 100) : 0; setProgress(percentComplete); if (now - lastTextUpdateTimestamp >= 1000) { timeDisplayText.textContent = formatDuration(elapsedMs); let stageName = ""; let stageClass = ""; if (goalReached) { stageName = "Goal Reached!"; stageClass = "stage-goal-reached"; progressSvg.classList.add('goal-reached-svg'); timeDisplay.classList.add('goal-reached-timedisplay'); } else { stageName = "Digesting"; stageClass = "stage-anabolic"; if (elapsedHours >= 4 && elapsedHours < 12) { stageName = "Glycogen Depletion"; stageClass = "stage-catabolic"; } else if (elapsedHours >= 12 && elapsedHours < 18) { stageName = "Fat Burning"; stageClass = "stage-fat-burning"; } else if (elapsedHours >= 18 && elapsedHours < 24) { stageName = "Ketosis"; stageClass = "stage-ketosis"; } else if (elapsedHours >= 24) { stageName = "Autophagy"; stageClass = "stage-autophagy"; } progressSvg.classList.remove('goal-reached-svg'); timeDisplay.classList.remove('goal-reached-timedisplay'); } stageIndicator.textContent = stageName; stageIndicator.className = ''; stageIndicator.classList.add(stageClass); stageIndicator.classList.add('is-visible'); stageIndicator.id = 'fasting-stage-indicator'; lastTextUpdateTimestamp = now; /* Removed debug log */ } animationFrameId = requestAnimationFrame(animationLoop); } catch(e) { console.error("Error in animationLoop:", e); animationFrameId = null; } }
+        function animationLoop(timestamp) {
+            // Removed outer try...catch
+            if (!appState.isFasting || !appState.fastStartTime) { animationFrameId = null; return; }
+            const now = Date.now();
+            const elapsedMs = now - appState.fastStartTime.getTime();
+            const elapsedHours = elapsedMs / (1000 * 60 * 60);
+            const goalMs = appState.selectedFastHours * 60 * 60 * 1000;
+            const goalReached = goalMs > 0 && elapsedMs >= goalMs;
+            const percentComplete = (goalMs > 0) ? Math.min(100, (elapsedMs / goalMs) * 100) : 0;
+
+            setProgress(percentComplete); // Update circle fill
+
+            if (now - lastTextUpdateTimestamp >= 1000) { // Update text/stage once per second
+                timeDisplayText.textContent = formatDuration(elapsedMs);
+                let stageName = "";
+                let stageClass = "";
+                if (goalReached) {
+                    stageName = "Goal Reached!";
+                    stageClass = "stage-goal-reached";
+                    progressSvg.classList.add('goal-reached-svg');
+                    timeDisplay.classList.add('goal-reached-timedisplay');
+                } else {
+                    // Determine stage based on hours
+                    stageName = "Digesting"; stageClass = "stage-anabolic";
+                    if (elapsedHours >= 4 && elapsedHours < 12) { stageName = "Glycogen Depletion"; stageClass = "stage-catabolic"; }
+                    else if (elapsedHours >= 12 && elapsedHours < 18) { stageName = "Fat Burning"; stageClass = "stage-fat-burning"; }
+                    else if (elapsedHours >= 18 && elapsedHours < 24) { stageName = "Ketosis"; stageClass = "stage-ketosis"; }
+                    else if (elapsedHours >= 24) { stageName = "Autophagy"; stageClass = "stage-autophagy"; }
+                    progressSvg.classList.remove('goal-reached-svg');
+                    timeDisplay.classList.remove('goal-reached-timedisplay');
+                }
+                // Update stage indicator text and style
+                stageIndicator.textContent = stageName;
+                stageIndicator.className = ''; // Clear previous classes
+                stageIndicator.classList.add(stageClass);
+                stageIndicator.classList.add('is-visible');
+                stageIndicator.id = 'fasting-stage-indicator'; // Ensure ID remains
+                lastTextUpdateTimestamp = now;
+            }
+            animationFrameId = requestAnimationFrame(animationLoop); // Request next frame
+        }
+
 
         // Core Fasting Logic
-        function startFast() { try { console.log("startFast called"); appState.isFasting = true; appState.fastStartTime = new Date(); lastTextUpdateTimestamp = 0; saveState(); updateUI(); stageIndicator.classList.add('is-visible'); const goalMs = appState.selectedFastHours * 60 * 60 * 1000; if (goalMs > 0) { const predictedEnd = new Date(appState.fastStartTime.getTime() + goalMs); predictedEndTimeDisplay.textContent = formatPredictedEndTime(predictedEnd); predictedEndTimeDisplay.classList.add('is-visible'); } else { predictedEndTimeDisplay.textContent = ''; predictedEndTimeDisplay.classList.remove('is-visible'); } progressSvg.classList.remove('goal-reached-svg'); timeDisplay.classList.remove('goal-reached-timedisplay'); if (animationFrameId) { cancelAnimationFrame(animationFrameId); } console.log("Starting animation loop..."); animationFrameId = requestAnimationFrame(animationLoop); console.log(`Fast started: ${appState.fastStartTime}, Goal: ${appState.selectedFastHours}h`); } catch(e) { console.error("Error in startFast:", e); } }
+        function startFast() {
+            // Removed outer try...catch
+            console.log("startFast called");
+            appState.isFasting = true;
+            appState.fastStartTime = new Date();
+            lastTextUpdateTimestamp = 0;
+            saveState();
+            updateUI(); // Sets button state, initial visibility
+            stageIndicator.classList.add('is-visible'); // Ensure visible
+
+            // Calculate and display predicted end time
+            try { // Add specific try-catch for date formatting
+                console.log("Calculating predicted end time..."); // DEBUG
+                const goalMs = appState.selectedFastHours * 60 * 60 * 1000;
+                console.log("Goal ms:", goalMs); // DEBUG
+                if (goalMs > 0) {
+                    const predictedEnd = new Date(appState.fastStartTime.getTime() + goalMs);
+                    console.log("Calculated predictedEnd:", predictedEnd); // DEBUG
+                    const formattedEndTime = formatPredictedEndTime(predictedEnd); // Call formatting
+                    console.log("Formatted end time:", formattedEndTime); // DEBUG
+                    predictedEndTimeDisplay.textContent = formattedEndTime;
+                    predictedEndTimeDisplay.classList.add('is-visible');
+                    console.log("Predicted end time displayed."); // DEBUG
+                } else {
+                    predictedEndTimeDisplay.textContent = '';
+                    predictedEndTimeDisplay.classList.remove('is-visible');
+                     console.log("Goal is 0, predicted end time hidden."); // DEBUG
+                }
+            } catch (e) {
+                 console.error("Error formatting/displaying predicted end time:", e); // Log specific error
+                 predictedEndTimeDisplay.textContent = 'Error calculating end time'; // Fallback text
+                 predictedEndTimeDisplay.classList.add('is-visible'); // Show the error
+            }
+
+            progressSvg.classList.remove('goal-reached-svg');
+            timeDisplay.classList.remove('goal-reached-timedisplay');
+            if (animationFrameId) { cancelAnimationFrame(animationFrameId); }
+            console.log("Starting animation loop...");
+            animationFrameId = requestAnimationFrame(animationLoop);
+            console.log(`Fast started: ${appState.fastStartTime}, Goal: ${appState.selectedFastHours}h`);
+        }
         function stopFast() { try { console.log("stopFast called"); if (!appState.isFasting) return; if (animationFrameId) { cancelAnimationFrame(animationFrameId); animationFrameId = null; console.log("Stopped animation loop."); } const fastEndTimeActual = new Date(); const success = addFastToHistory(appState.fastStartTime, fastEndTimeActual, appState.selectedFastHours); if (success) { const durationMs = fastEndTimeActual - appState.fastStartTime; appState.isFasting = false; appState.fastStartTime = null; saveState(); updateUI(`Fast completed! Duration: ${formatDuration(durationMs)}`, 3000); console.log(`Fast stopped: ${fastEndTimeActual}, Duration: ${formatDuration(durationMs)}`); updateStreakDisplay(); } else { updateUI("Error saving completed fast.", 3000); } setProgress(0); timeDisplayText.textContent = '00:00:00'; } catch(e) { console.error("Error in stopFast:", e); } }
 
         // Modal Control Functions
@@ -328,14 +408,22 @@
                     console.log("Resuming ongoing fast...");
                      const now = Date.now(); const elapsedMs = now - appState.fastStartTime.getTime();
                      const goalMs = appState.selectedFastHours * 60 * 60 * 1000;
-                     if (goalMs > 0) {
-                        const predictedEnd = new Date(appState.fastStartTime.getTime() + goalMs);
-                        predictedEndTimeDisplay.textContent = formatPredictedEndTime(predictedEnd);
-                        predictedEndTimeDisplay.classList.add('is-visible');
-                     } else {
-                         predictedEndTimeDisplay.classList.remove('is-visible');
-                         predictedEndTimeDisplay.textContent = '';
+                     // --- MODIFIED --- Add try/catch for predicted end time on init
+                     try {
+                         if (goalMs > 0) {
+                            const predictedEnd = new Date(appState.fastStartTime.getTime() + goalMs);
+                            predictedEndTimeDisplay.textContent = formatPredictedEndTime(predictedEnd);
+                            predictedEndTimeDisplay.classList.add('is-visible');
+                         } else {
+                             predictedEndTimeDisplay.classList.remove('is-visible');
+                             predictedEndTimeDisplay.textContent = '';
+                         }
+                     } catch(e) {
+                         console.error("Error formatting/displaying predicted end time on init:", e);
+                         predictedEndTimeDisplay.textContent = 'Error calculating end time';
+                         predictedEndTimeDisplay.classList.add('is-visible');
                      }
+                     // --- End Modification ---
                      const percentComplete = (goalMs > 0) ? Math.min(100, (elapsedMs / goalMs) * 100) : 0; setProgress(percentComplete); timeDisplayText.textContent = formatDuration(elapsedMs);
                      lastTextUpdateTimestamp = 0;
                     if (animationFrameId) cancelAnimationFrame(animationFrameId);
