@@ -325,26 +325,26 @@
 
             // Calculate and display predicted end time
             try { // Add specific try-catch for date formatting
-                console.log("Calculating predicted end time..."); // DEBUG
+                console.log("Calculating predicted end time...");
                 const goalMs = appState.selectedFastHours * 60 * 60 * 1000;
-                console.log("Goal ms:", goalMs); // DEBUG
+                console.log("Goal ms:", goalMs);
                 if (goalMs > 0) {
                     const predictedEnd = new Date(appState.fastStartTime.getTime() + goalMs);
-                    console.log("Calculated predictedEnd:", predictedEnd); // DEBUG
+                    console.log("Calculated predictedEnd:", predictedEnd);
                     const formattedEndTime = formatPredictedEndTime(predictedEnd); // Call formatting
-                    console.log("Formatted end time:", formattedEndTime); // DEBUG
+                    console.log("Formatted end time:", formattedEndTime);
                     predictedEndTimeDisplay.textContent = formattedEndTime;
                     predictedEndTimeDisplay.classList.add('is-visible');
-                    console.log("Predicted end time displayed."); // DEBUG
+                    console.log("Predicted end time displayed.");
                 } else {
                     predictedEndTimeDisplay.textContent = '';
                     predictedEndTimeDisplay.classList.remove('is-visible');
-                     console.log("Goal is 0, predicted end time hidden."); // DEBUG
+                     console.log("Goal is 0, predicted end time hidden.");
                 }
             } catch (e) {
-                 console.error("Error formatting/displaying predicted end time:", e); // Log specific error
-                 predictedEndTimeDisplay.textContent = 'Error calculating end time'; // Fallback text
-                 predictedEndTimeDisplay.classList.add('is-visible'); // Show the error
+                 console.error("Error formatting/displaying predicted end time:", e);
+                 predictedEndTimeDisplay.textContent = 'Error calculating end time';
+                 predictedEndTimeDisplay.classList.add('is-visible');
             }
 
             progressSvg.classList.remove('goal-reached-svg');
@@ -408,8 +408,7 @@
                     console.log("Resuming ongoing fast...");
                      const now = Date.now(); const elapsedMs = now - appState.fastStartTime.getTime();
                      const goalMs = appState.selectedFastHours * 60 * 60 * 1000;
-                     // --- MODIFIED --- Add try/catch for predicted end time on init
-                     try {
+                     try { // Specific try-catch for date formatting on init
                          if (goalMs > 0) {
                             const predictedEnd = new Date(appState.fastStartTime.getTime() + goalMs);
                             predictedEndTimeDisplay.textContent = formatPredictedEndTime(predictedEnd);
@@ -423,7 +422,6 @@
                          predictedEndTimeDisplay.textContent = 'Error calculating end time';
                          predictedEndTimeDisplay.classList.add('is-visible');
                      }
-                     // --- End Modification ---
                      const percentComplete = (goalMs > 0) ? Math.min(100, (elapsedMs / goalMs) * 100) : 0; setProgress(percentComplete); timeDisplayText.textContent = formatDuration(elapsedMs);
                      lastTextUpdateTimestamp = 0;
                     if (animationFrameId) cancelAnimationFrame(animationFrameId);
