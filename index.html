@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Bite Me Not - Fasting Tracker</title>
+
     <meta name="description" content="A simple fasting tracker app.">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -11,549 +12,438 @@
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#3b82f6">
     <link rel="icon" href="https://placehold.co/32x32/3b82f6/FFFFFF?text=F" sizes="32x32" type="image/png">
-    <link rel="icon" href="https://placehold.co/192x192/3b82f6/FFFFFF?text=F" sizes="192x192" type="image/png">
+     <link rel="icon" href="https://placehold.co/192x192/3b82f6/FFFFFF?text=F" sizes="192x192" type="image/png">
     <link rel="apple-touch-icon" href="https://placehold.co/180x180/2563eb/FFFFFF?text=BMN">
+
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/wheelpicker/dist/wheelpicker.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/wheelpicker/dist/wheelpicker.min.js"></script>
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f9fafb;
-            color: #1f2937;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-            overscroll-behavior: none;
-            -webkit-user-select: none;
-            user-select: none;
-            -webkit-tap-highlight-color: transparent;
-        }
-        #app {
-            width: 100%;
-            max-width: 448px;
-            padding: 1rem;
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-        #progress-container {
-            position: relative;
-            width: 70%;
-            max-width: 280px;
-            aspect-ratio: 1;
-            margin: 2rem auto;
-        }
-        #progress-svg {
-            width: 100%;
-            height: 100%;
-        }
-        #progress-circle-bg {
-            fill: none;
-            stroke: #e5e7eb;
-            stroke-width: 12;
-        }
-        #progress-circle {
-            fill: none;
-            stroke: #3b82f6;
-            stroke-width: 12;
-            stroke-linecap: round;
-            transform: rotate(-90deg);
-            transform-origin: 50% 50%;
-            transition: stroke-dashoffset 0.35s ease-out, stroke 0.35s ease-out;
-        }
-        .goal-reached-svg #progress-circle {
-            stroke: #22c55e;
-        }
-        #time-display {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 2rem;
-            font-weight: 600;
-            color: #1f2937;
-            transition: color 0.35s ease-out;
-        }
-        .goal-reached-timedisplay {
-            color: #22c55e;
-        }
-        #controls {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-            margin-bottom: 2rem;
-        }
-        button {
-            background-color: #3b82f6;
-            color: white;
-            padding: 0.75rem 1.5rem;
-            border-radius: 0.5rem;
-            border: none;
-            font-size: 1rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-        button:hover:not(:disabled) {
-            background-color: #2563eb;
-        }
-        button:disabled {
-            background-color: #d1d5db;
-            cursor: not-allowed;
-        }
-        #goal-selector {
-            display: flex;
-            gap: 0.5rem;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-        .goal-btn {
-            background-color: #e5e7eb;
-            color: #4b5563;
-            padding: 0.5rem 1rem;
-            border-radius: 0.375rem;
-            font-size: 0.875rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .goal-btn:hover:not(.selected) {
-            background-color: #d1d5db;
-        }
-        .goal-btn.selected {
-            background-color: #3b82f6;
-            color: white;
-        }
-        #status-message {
-            text-align: center;
-            font-size: 0.875rem;
-            color: #4b5563;
-            margin-top: 1rem;
-            min-height: 1lh;
-        }
-        #stage-indicator {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            box-shadow: inset 0 0 20px rgba(59, 130, 246, 0.2);
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.35s ease-out;
-        }
-        #stage-indicator.is-visible {
-            opacity: 1;
-        }
-        #predicted-end-time {
-            text-align: center;
-            font-size: 0.75rem;
-            color: #6b7280;
-            margin-top: 0.5rem;
-            opacity: 0;
-            transition: opacity 0.35s ease-out;
-        }
-        #predicted-end-time.is-visible {
-            opacity: 1;
-        }
-        #streak-display {
-            text-align: center;
-            font-size: 1rem;
-            font-weight: 500;
-            margin-top: 1rem;
-            transition: color 0.35s ease-out;
-        }
-        @media (prefers-color-scheme: dark) {
-            body {
-                background-color: #1f2937;
-                color: #f9fafb;
-            }
-            #progress-circle-bg {
-                stroke: #374151;
-            }
-            #time-display {
-                color: #f9fafb;
-            }
-            #status-message {
-                color: #d1d5db;
-            }
-            #predicted-end-time {
-                color: #9ca3af;
-            }
-            .goal-btn {
-                background-color: #374151;
-                color: #d1d5db;
-            }
-            .goal-btn:hover:not(.selected) {
-                background-color: #4b5563;
-            }
-        }
+        /* Base styles */
+        body { font-family: 'Inter', sans-serif; overscroll-behavior: none; background-image: linear-gradient(to bottom right, #3b82f6, #2563eb); color: #ffffff; }
+        .app-container { color: #ffffff; }
+
+        /* Info & Settings Button Styles */
+        .header-button { position: absolute; top: 1rem; background-color: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.25); color: #ffffff; width: 32px; height: 32px; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; transition: background-color 0.2s ease, transform 0.1s ease-out; z-index: 20; }
+        .header-button svg { width: 20px; height: 20px; }
+        .header-button:hover { background-color: rgba(255, 255, 255, 0.25); transform: scale(1.1); }
+        .header-button:active { transform: scale(1.05); }
+        #info-button { left: 1rem; padding: 0; }
+        #settings-button { right: 1rem; padding: 0; }
+
+        /* Select arrow */
+        select { appearance: none; -webkit-appearance: none; -moz-appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236B7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E"); background-position: right 0.5rem center; background-repeat: no-repeat; background-size: 1.5em 1.5em; padding-right: 2.5rem; }
+        #settings-modal-overlay select { background-color: #f9fafb; border: 1px solid #d1d5db; color: #374151; }
+
+        /* Custom scrollbar */
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.1); border-radius: 3px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.4); border-radius: 3px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.6); }
+
+        /* Progress Circle */
+        .progress-ring__circle--bg { stroke: rgba(255, 255, 255, 0.2); transition: stroke 0.5s ease; }
+        .progress-ring__circle--progress { stroke: #ffffff; stroke-linecap: round; transform: rotate(-90deg); transform-origin: 50% 50%; transition: stroke 0.5s ease; }
+        .goal-reached-svg .progress-ring__circle--progress { stroke: #FAFAD2 !important; }
+        .goal-reached-svg .progress-ring__circle--bg { stroke: #FAFAD2 !important; }
+
+        /* Time Display Background Change */
+        #time-display { width: calc(100% - 40px); height: calc(100% - 40px); border-radius: 50%; background-color: transparent; transition: background-color 0.5s ease, color 0.5s ease; position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; margin: auto; }
+        #time-display.goal-reached-timedisplay { background-color: rgba(250, 250, 210, 0.2); }
+        #time-display span:first-child { color: #ffffff; }
+        #time-display span:last-child { color: rgba(255, 255, 255, 0.8); }
+
+        /* Streak Display Styles */
+        #streak-display { position: absolute; bottom: 1.5rem; left: 1.5rem; width: 44px; height: 44px; border-radius: 50%; display: flex; justify-content: center; align-items: center; border: 2px solid rgba(255, 255, 255, 0.3); background-color: transparent; transition: background-color 0.3s ease, border-color 0.3s ease; z-index: 10; }
+        #streak-number { font-size: 1.125rem; font-weight: 600; line-height: 1; color: #ffffff; }
+        .streak-tier-0 { border-color: rgba(255, 255, 255, 0.3); background-color: transparent; }
+        .streak-tier-1 { border-color: #64b5f6; background-color: rgba(100, 181, 246, 0.2); }
+        .streak-tier-2 { border-color: #81c784; background-color: rgba(129, 199, 132, 0.2); }
+        .streak-tier-3 { border-color: #ffb74d; background-color: rgba(255, 183, 77, 0.2); }
+
+        /* Fasting Stage Indicator Styles */
+        #fasting-stage-indicator { padding: 0.4rem 1rem; border-radius: 0.5rem; font-size: 0.8rem; font-weight: 500; text-align: center; margin-bottom: 0.75rem; min-height: 34px; display: inline-block; transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, visibility 0s linear 0.3s, opacity 0.3s ease; border: 1px solid transparent; visibility: hidden; opacity: 0; }
+        #fasting-stage-indicator.is-visible { visibility: visible; opacity: 1; transition-delay: 0s; }
+        .stage-default { color: rgba(255, 255, 255, 0.8); background-color: transparent; border-color: transparent; }
+        .stage-anabolic { background-color: rgba(100, 181, 246, 0.15); border-color: rgba(100, 181, 246, 0.4); color: #e3f2fd; }
+        .stage-catabolic { background-color: rgba(77, 208, 225, 0.15); border-color: rgba(77, 208, 225, 0.4); color: #e0f7fa; }
+        .stage-fat-burning { background-color: rgba(129, 199, 132, 0.15); border-color: rgba(129, 199, 132, 0.4); color: #e8f5e9; }
+        .stage-ketosis { background-color: rgba(255, 183, 77, 0.15); border-color: rgba(255, 183, 77, 0.4); color: #fff3e0; }
+        .stage-autophagy { background-color: rgba(224, 118, 118, 0.15); border-color: rgba(224, 118, 118, 0.4); color: #ffebee; }
+        .stage-goal-reached { background-color: rgba(250, 250, 210, 0.2); border-color: rgba(250, 250, 210, 0.6); color: #EAECCC; font-weight: 600; }
+
+        /* Predicted End Time Style */
+        #predicted-end-time { font-size: 0.75rem; color: rgba(255, 255, 255, 0.7); margin-top: 0.25rem; margin-bottom: 0.75rem; min-height: 1.2em; visibility: hidden; opacity: 0; transition: opacity 0.3s ease, visibility 0s linear 0.3s; }
+        #predicted-end-time.is-visible { visibility: visible; opacity: 1; transition-delay: 0s; }
+
+        /* Quote Display Style */
+        #quote-display { font-size: 0.75rem; font-style: italic; color: rgba(255, 255, 255, 0.6); margin-top: 0.5rem; margin-bottom: 0.75rem; padding: 0 1rem; min-height: 2.5em; max-width: 90%; text-align: center; }
+
+        /* Button Haze & Scale Effect */
+        #start-stop-button, #history-panel #add-manual-fast-button, .modal-buttons button { box-shadow: 0 0 15px rgba(255, 255, 255, 0.2); transition: transform 0.1s ease-out, background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease; will-change: transform; }
+        #start-stop-button:hover, #history-panel #add-manual-fast-button:hover, .modal-buttons button:hover { transform: scale(1.05); box-shadow: 0 0 20px rgba(255, 255, 255, 0.35); }
+        #start-stop-button:active, #history-panel #add-manual-fast-button:active, .modal-buttons button:active { transform: scale(1.02); transition-duration: 0.05s; }
+
+        /* History items styling */
+        .history-item { background-color: rgba(255, 255, 255, 0.1); padding: 1rem; border-radius: 0.75rem; margin-bottom: 0.75rem; border: 1px solid rgba(255, 255, 255, 0.15); position: relative; min-height: 60px; display: flex; justify-content: center; align-items: center; text-align: center; }
+        .history-center-text { }
+        .history-day { font-size: 0.95rem; font-weight: 500; color: #ffffff; display: block; margin-bottom: 0.1rem; }
+        .history-duration { font-size: 0.85rem; color: rgba(255, 255, 255, 0.8); display: block; }
+        .history-item-button { position: absolute; background: none; border: none; cursor: pointer; padding: 0.5rem; line-height: 1; display: flex; align-items: center; justify-content: center; transition: opacity 0.2s ease, transform 0.1s ease-out; opacity: 0.7; }
+        .history-item-button:hover { opacity: 1; transform: scale(1.1); }
+        .history-item-button:active { transform: scale(1.05); }
+        .history-item-button svg { width: 16px; height: 16px; }
+        .history-item-button.edit-button { bottom: 0.5rem; left: 0.5rem; color: #64b5f6; }
+        .history-item-button.delete-button { top: 0.5rem; right: 0.5rem; color: rgba(255, 255, 255, 0.6); }
+        .history-item-button.delete-button:hover { color: #ef9a9a; }
+
+        /* History list container padding */
+        #history-list { padding-left: 0.25rem; padding-right: 0.5rem; padding-top: 0.25rem; padding-bottom: 0.25rem; }
+
+        /* History panel styling */
+        #history-panel { position: absolute; inset: 0; background-color: rgba(37, 99, 235, 0.9); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); padding: 1.5rem; display: flex; flex-direction: column; transition: transform 0.3s ease-in-out; transform: translateY(100%); z-index: 40; border-top: 1px solid rgba(255, 255, 255, 0.15); }
+        #history-panel.is-active { transform: translateY(0); pointer-events: auto !important; }
+        #history-panel:not(.is-active) { pointer-events: none; }
+
+        /* History Navigation & Header Styles */
+        #history-navigation { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; padding: 0 0.25rem; }
+        #history-navigation button { background: none; border: none; color: rgba(255, 255, 255, 0.8); font-size: 0.9rem; font-weight: 500; padding: 0.25rem 0.5rem; cursor: pointer; transition: color 0.2s ease, transform 0.1s ease-out; }
+        #history-navigation button:hover:not(:disabled) { color: #ffffff; transform: scale(1.05); }
+        #history-navigation button:active:not(:disabled) { transform: scale(1); }
+        #history-navigation button:disabled { color: rgba(255, 255, 255, 0.4); cursor: default; }
+        #week-header { text-align: center; font-weight: 600; color: #ffffff; margin-bottom: 0.75rem; font-size: 0.95rem; }
+        #history-panel h2 { color: #ffffff; }
+        #history-panel #close-history-button { color: rgba(255, 255, 255, 0.8); transition: transform 0.1s ease-out; }
+        #history-panel #close-history-button:hover { color: #ffffff; transform: scale(1.1); }
+        #history-panel #close-history-button:active { transform: scale(1); }
+
+        /* Generic Modal Styles */
+        .modal-overlay { position: absolute; inset: 0; background-color: rgba(0, 0, 0, 0.6); display: flex; align-items: center; justify-content: center; z-index: 50; padding: 1rem; opacity: 0; pointer-events: none; transition: opacity 0.2s ease-in-out; }
+        .modal-overlay.is-visible { opacity: 1; pointer-events: auto; }
+        .modal-content { background-color: #ffffff; color: #333; padding: 1.5rem; border-radius: 0.75rem; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3); max-width: 90%; width: 350px; max-height: 90vh; overflow-y: auto; }
+        .modal-content h3 { font-size: 1.125rem; font-weight: 600; margin-bottom: 1rem; text-align: center; color: #111827; }
+        .modal-content label { display: block; margin-bottom: 0.25rem; font-size: 0.875rem; font-weight: 500; color: #4b5563; }
+        .modal-content input[type="datetime-local"], .modal-content input[type="number"], .modal-content select { width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 0.375rem; margin-bottom: 1rem; font-size: 0.875rem; color: #374151; min-height: 44px; background-color: #f9fafb; }
+        input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; } input[type=number] { -moz-appearance: textfield; }
+        .modal-buttons { display: flex; justify-content: space-between; margin-top: 1.5rem; }
+        .modal-buttons button { padding: 0.6rem 1.2rem; border-radius: 0.5rem; font-weight: 600; cursor: pointer; border: none; flex-grow: 1; }
+        .modal-buttons button:first-child { margin-right: 0.5rem; }
+        .modal-buttons .confirm-button { background-color: #2563eb; color: white; }
+        .modal-buttons .confirm-button:hover { background-color: #1d4ed8; }
+        .modal-buttons .cancel-button { background-color: #e5e7eb; color: #374151; }
+        .modal-buttons .cancel-button:hover { background-color: #d1d5db; }
+        .modal-buttons .delete-button { background-color: #ef4444; color: white; }
+        .modal-buttons .delete-button:hover { background-color: #dc2626; }
+        .error-message { color: #ef4444; font-size: 0.875rem; margin-top: -0.5rem; margin-bottom: 1rem; text-align: center; display: none; }
+
+        /* Info Modal */
+        #info-modal-content { text-align: left; }
+        #info-modal-content h4 { font-size: 1rem; font-weight: 600; margin-top: 1rem; margin-bottom: 0.25rem; color: #1d4ed8; }
+        #info-modal-content p { font-size: 0.875rem; line-height: 1.5; color: #4b5563; margin-bottom: 0.5rem; }
+        #info-modal-content .disclaimer { font-size: 0.75rem; color: #6b7280; margin-top: 1.5rem; border-top: 1px solid #e5e7eb; padding-top: 0.75rem; }
+        #info-modal-buttons { justify-content: center; }
+
+        /* Settings Modal */
+        #settings-modal-overlay .modal-content { width: auto; max-width: 300px; padding: 1.25rem; }
+
     </style>
 </head>
-<body>
-    <div id="app">
-        <div>
-            <div id="progress-container">
-                <svg id="progress-svg" viewBox="0 0 100 100">
-                    <circle id="progress-circle-bg" cx="50" cy="50" r="42"/>
-                    <circle id="progress-circle" cx="50" cy="50" r="42" stroke-dasharray="263.89" stroke-dashoffset="263.89"/>
-                </svg>
-                <div id="stage-indicator"></div>
-                <div id="time-display"><span id="time-display-text">00:00:00</span></div>
+<body class="flex items-center justify-center min-h-screen p-4">
+    <div class="app-container bg-blue-600 text-white w-full max-w-sm h-[85vh] max-h-[700px] rounded-3xl shadow-2xl p-6 flex flex-col overflow-hidden relative">
+
+        <header class="flex justify-center items-center mb-6 flex-shrink-0 relative">
+            <button id="info-button" class="header-button" aria-label="Fasting Info">
+                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                     <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                     <path d="M7.002 11a1 1 0 1 1 2 0 1 1 0 0 1-2 0zM7.1 4.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 4.995z"/>
+                 </svg>
+            </button>
+            <h1 class="text-xl font-bold">Bite Me Not</h1>
+            <button id="settings-button" class="header-button" aria-label="Settings">
+                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                     <path d="M9.5 13a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z"/>
+                 </svg>
+            </button>
+             </header>
+
+        <main class="flex-grow flex flex-col items-center justify-center text-center mb-4">
+             <div class="relative w-48 h-48 mb-4 flex-shrink-0">
+                 <svg id="progress-svg" class="w-full h-full" viewBox="0 0 120 120">
+                     <circle class="progress-ring__circle--bg" stroke-width="10" fill="transparent" r="50" cx="60" cy="60"/>
+                     <circle id="progress-circle" class="progress-ring__circle--progress" stroke-width="10" fill="transparent" r="50" cx="60" cy="60"/>
+                 </svg>
+                 <div id="time-display">
+                     <span class="text-3xl font-bold">00:00:00</span>
+                     <span class="text-xs uppercase tracking-wider opacity-80">Time Elapsed</span>
+                 </div>
+             </div>
+             <p id="quote-display" class="flex-shrink-0"></p>
+             <div id="fasting-stage-indicator" class="stage-default flex-shrink-0"></div>
+             <p id="predicted-end-time" class="flex-shrink-0"></p>
+            <div class="flex-grow"></div>
+            <button id="start-stop-button" class="font-bold py-3 px-8 rounded-full shadow-md transition duration-200 focus:outline-none focus:ring-2 focus:ring-blue-300 focus:ring-opacity-50 mt-auto mb-2 flex-shrink-0"> Start Fasting </button> </main>
+
+        <footer class="text-center flex-shrink-0 pb-1">
+            <button id="view-history-button" class="text-sm transition duration-200"> View History </button>
+        </footer>
+
+        <div id="streak-display" class="streak-tier-0"> <span id="streak-number">0</span> </div>
+
+        <div id="history-panel" class="absolute inset-0 p-6 flex flex-col transition-transform duration-300 ease-in-out transform translate-y-full"> <div class="flex justify-between items-center mb-4"> <h2 class="text-lg font-bold">Fasting History</h2> <button id="close-history-button" class="text-2xl font-bold">&times;</button> </div>
+             <div id="history-content" class="flex flex-col flex-grow overflow-hidden">
+                 <div id="history-navigation"> <button id="prev-week-button">&lt; Prev Week</button> <span id="week-header" class="flex-grow text-center">This Week</span> <button id="next-week-button">Next Week &gt;</button> </div>
+                 <div id="history-list" class="flex-grow overflow-y-auto custom-scrollbar"> <p id="no-history-message" class="text-center opacity-70 mt-10">No fasts recorded yet.</p> </div>
+             </div>
+             <button id="add-manual-fast-button" class="mt-4 w-full font-bold py-2 px-4 rounded-full shadow-md transition duration-200"> Add Manual Entry </button> </div>
+
+        <div id="confirm-delete-modal-overlay" class="modal-overlay"> <div class="modal-content"> <p>Are you sure you want to delete this fast entry?</p> <div class="modal-buttons"> <button id="confirm-delete-yes-button" class="delete-button">Yes, Delete</button> <button id="confirm-delete-no-button" class="cancel-button">No, Cancel</button> </div> </div> </div>
+        <div id="add-modal-overlay" class="modal-overlay"> <div class="modal-content"> <h3>Add Manual Fast</h3> <p id="add-error-message" class="error-message"></p> <div> <label for="add-start-time">Start Time</label> <input type="datetime-local" id="add-start-time" name="add-start-time"> </div> <div> <label for="add-end-time">End Time</label> <input type="datetime-local" id="add-end-time" name="add-end-time"> </div> <div class="modal-buttons"> <button id="add-save-button" class="confirm-button">Save Fast</button> <button id="add-cancel-button" class="cancel-button">Cancel</button> </div> </div> </div>
+        <div id="edit-modal-overlay" class="modal-overlay"> <div class="modal-content"> <h3>Edit Fast</h3> <p id="edit-error-message" class="error-message"></p> <input type="hidden" id="edit-fast-id"> <div> <label for="edit-start-time">Start Time</label> <input type="datetime-local" id="edit-start-time" name="edit-start-time"> </div> <div> <label for="edit-end-time">End Time</label> <input type="datetime-local" id="edit-end-time" name="edit-end-time"> </div> <div class="modal-buttons"> <button id="edit-save-button" class="confirm-button">Save Changes</button> <button id="edit-cancel-button" class="cancel-button">Cancel</button> </div> </div> </div>
+        <div id="custom-duration-modal-overlay" class="modal-overlay"> <div class="modal-content"> <h3>Set Custom Duration</h3> <p id="custom-error-message" class="error-message"></p> <div> <label for="custom-hours-input">Fasting Duration (hours)</label> <input type="number" id="custom-hours-input" name="custom-hours-input" min="1" step="0.5" placeholder="e.g., 18.5"> </div> <div class="modal-buttons"> <button id="custom-set-button" class="confirm-button">Set Duration</button> <button id="custom-cancel-button" class="cancel-button">Cancel</button> </div> </div> </div>
+        <div id="info-modal-overlay" class="modal-overlay"> <div id="info-modal-content" class="modal-content"> <h3>Fasting Info</h3> <div id="info-modal-text-content" class="custom-scrollbar" style="max-height: 60vh; overflow-y: auto; padding-right: 10px;"> <p class="disclaimer"><strong>Disclaimer:</strong> This information is for general knowledge only and not a substitute for professional medical advice. Consult your doctor before starting or changing any fasting plan.</p> </div> <div id="info-modal-buttons" class="modal-buttons"> <button id="info-close-button" class="cancel-button">Close</button> </div> </div> </div>
+         <div id="settings-modal-overlay" class="modal-overlay">
+            <div class="modal-content">
+                <h3>Settings</h3>
+                <div class="mt-4">
+                    <label for="fasting-style" class="block text-xs font-medium text-gray-700 mb-1">Default Fast Type</label>
+                    <select id="fasting-style" class="block w-full p-1.5 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-xs appearance-none">
+                        <option value="16">16:8</option>
+                        <option value="18">18:6</option>
+                        <option value="20">20:4</option>
+                        <option value="23">OMAD</option>
+                        <option value="36">36 Hour</option>
+                        <option value="custom">Custom</option>
+                    </select>
+                </div>
+                 <div class="modal-buttons mt-6"> <button id="settings-close-button" class="cancel-button w-full">Close</button> </div>
             </div>
-            <div id="predicted-end-time"></div>
-            <div id="streak-display">Streak: 0 days</div>
-            <div id="status-message"></div>
         </div>
-        <div id="controls">
-            <div id="goal-selector">
-                <button class="goal-btn" data-hours="16">16h</button>
-                <button class="goal-btn" data-hours="18">18h</button>
-                <button class="goal-btn" data-hours="20">20h</button>
-                <button class="goal-btn" data-hours="24">24h</button>
-            </div>
-            <button id="start-btn">Start Fast</button>
-            <button id="stop-btn" disabled>End Fast</button>
-        </div>
-    </div>
-    <script>
-        const CIRCLE_RADIUS = 42;
-        const CIRCUMFERENCE = 2 * Math.PI * CIRCLE_RADIUS;
-        const progressSvg = document.getElementById('progress-svg');
-        const progressCircle = document.getElementById('progress-circle');
-        const timeDisplay = document.getElementById('time-display');
-        const timeDisplayText = document.getElementById('time-display-text');
-        const startBtn = document.getElementById('start-btn');
-        const stopBtn = document.getElementById('stop-btn');
-        const goalButtons = document.querySelectorAll('.goal-btn');
-        const statusMessage = document.getElementById('status-message');
-        const stageIndicator = document.getElementById('stage-indicator');
+
+    </div> <script>
+        // DOM Elements
+        const appContainer = document.querySelector('.app-container'); const htmlElement = document.documentElement; const fastingStyleSelect = document.getElementById('fasting-style'); const progressCircle = document.getElementById('progress-circle'); const progressSvg = document.getElementById('progress-svg'); const timeDisplay = document.getElementById('time-display'); const timeDisplayText = timeDisplay.querySelector('span:first-child'); const stageIndicator = document.getElementById('fasting-stage-indicator'); const startStopButton = document.getElementById('start-stop-button'); const viewHistoryButton = document.getElementById('view-history-button'); const historyPanel = document.getElementById('history-panel'); const closeHistoryButton = document.getElementById('close-history-button'); const historyList = document.getElementById('history-list'); const addManualFastButton = document.getElementById('add-manual-fast-button'); const noHistoryMessage = document.getElementById('no-history-message'); const confirmDeleteModalOverlay = document.getElementById('confirm-delete-modal-overlay'); const confirmDeleteYesButton = document.getElementById('confirm-delete-yes-button'); const confirmDeleteNoButton = document.getElementById('confirm-delete-no-button'); const addModalOverlay = document.getElementById('add-modal-overlay'); const addSaveButton = document.getElementById('add-save-button'); const addCancelButton = document.getElementById('add-cancel-button'); const addStartTimeInput = document.getElementById('add-start-time'); const addEndTimeInput = document.getElementById('add-end-time'); const addErrorMessage = document.getElementById('add-error-message'); const editModalOverlay = document.getElementById('edit-modal-overlay'); const editSaveButton = document.getElementById('edit-save-button'); const editCancelButton = document.getElementById('edit-cancel-button'); const editStartTimeInput = document.getElementById('edit-start-time'); const editEndTimeInput = document.getElementById('edit-end-time'); const editFastIdInput = document.getElementById('edit-fast-id'); const editErrorMessage = document.getElementById('edit-error-message'); const customDurationModalOverlay = document.getElementById('custom-duration-modal-overlay'); const customHoursInput = document.getElementById('custom-hours-input'); const customSetButton = document.getElementById('custom-set-button'); const customCancelButton = document.getElementById('custom-cancel-button'); const customErrorMessage = document.getElementById('custom-error-message'); const prevWeekButton = document.getElementById('prev-week-button'); const nextWeekButton = document.getElementById('next-week-button'); const weekHeader = document.getElementById('week-header');
+        const streakDisplay = document.getElementById('streak-display'); const streakNumber = document.getElementById('streak-number');
+        const infoButton = document.getElementById('info-button'); const infoModalOverlay = document.getElementById('info-modal-overlay'); const infoModalTextContent = document.getElementById('info-modal-text-content'); const infoCloseButton = document.getElementById('info-close-button');
+        const quoteDisplay = document.getElementById('quote-display');
+        const settingsButton = document.getElementById('settings-button'); const settingsModalOverlay = document.getElementById('settings-modal-overlay'); const settingsCloseButton = document.getElementById('settings-close-button');
         const predictedEndTimeDisplay = document.getElementById('predicted-end-time');
-        const streakDisplay = document.getElementById('streak-display');
 
-        let animationFrameId = null;
-        let lastTextUpdateTimestamp = 0;
+        // State
+        const APP_STATE_KEY = 'fastingTrackerState'; const HISTORY_KEY = 'fastingHistory'; let appState = { isFasting: false, fastStartTime: null, selectedFastHours: 16 }; let animationFrameId = null; let lastTextUpdateTimestamp = 0; let fastIdToDelete = null; let statusTimeout = null; let currentWeekStartDate = null;
 
-        const appState = loadState();
+        // Funny Quotes Array
+        const funnyQuotes = [ "Are you hungry, or just bored? Let's be honest...", "Your stomach isn't growling, it's applauding your willpower.", "Think of all the money you're saving on snacks right now.", "Hunger is just your fat cells crying. Let them weep.", "Water: Because adulting is hard and sometimes you just need to feel full.", "That cookie looks good, but have you tried fitting into those jeans?", "My stomach rumble could be the next hit single.", "Is it lunchtime yet? No? Okay, checking again in 5 minutes.", "Keep calm and fast on... or maybe just drink some water.", "Remember why you started... also, remember where you put the water bottle.", "My fridge just whispered 'chocolate'... I told it to shut up.", "Relationship status: Committed to my fasting window.", "Pretty sure my stomach speaks whale now.", "Is this autophagy or am I just hangry?", "My superpower is turning water into... more trips to the bathroom.", "Currently fueled by willpower and coffee. Mostly coffee.", "My snack drawer is starting to feel neglected.", "I miss chewing. Is that weird?", "Fasting: Proving I have more self-control than my browser history suggests.", "Running on empty? Nah, just optimizing.", "My brain says 'salad', my stomach says 'everything'.", "This must be how plants feel. Photosynthesis, anyone?", "I'm not saying it's aliens... but it's aliens (making me hungry).", "Pretty sure I can hear colors now.", "If you see me talking to a donut, mind your business.", "My grocery bill is looking great, though!", "Just waiting for my six-pack... of water.", "Current mood: Calculating how many hours until food.", "My body is a temple... currently under renovation (and closed for lunch).", "Who needs breakfast when you have... existential thoughts?", "Discipline is choosing between what you want now and what you want most.", "You are stronger than your cravings. Probably.", "Every hour fasted is an investment in yourself. Keep the receipts.", "Trust the process. Your body knows what to do (mostly).", "Small progress is still progress. Keep going!", "Focus on how good you'll feel afterwards. Or at least, less hungry.", "Embrace the challenge, unlock the benefits. And maybe unlock the fridge later.", "Today's discomfort is tomorrow's strength (and maybe tomorrow's pizza).", "You've got this! One hour at a time.", "Health is wealth. Keep investing (in water).", "Let your body do its amazing cleanup work. It's like Marie Kondo in there.", "Stay hydrated, stay focused, stay awesome.", "The goal is progress, not perfection. Unless perfection involves donuts.", "Building resilience, one fast at a time.", "Your future self will thank you. Maybe buy them a snack.", "It's not about deprivation, it's about optimization... and dreaming of food.", "Unlock your potential. Keep fasting smart.", "Feeling good starts from within. Specifically, within the stomach... eventually.", "Push through! The benefits are worth it. Science says so. Probably.", "Master your hunger, master yourself. Or at least master the art of distraction.", "Just breathe. And maybe smell some coffee.", "Patience, young grasshopper. Food comes to those who wait.", "You're basically a superhero powered by stored energy.", "Think of autophagy as Pac-Man eating the bad stuff in your cells." ];
+        const QUOTE_INDICES_KEY = 'fastingQuoteIndices';
 
-        function loadState() {
-            try {
-                const savedState = localStorage.getItem('fastingAppState');
-                const defaultState = {
-                    isFasting: false,
-                    fastStartTime: null,
-                    selectedFastHours: 18,
-                    history: []
-                };
-                if (!savedState) return defaultState;
-                const parsedState = JSON.parse(savedState);
-                if (parsedState.fastStartTime) {
-                    parsedState.fastStartTime = new Date(parsedState.fastStartTime);
-                }
-                return { ...defaultState, ...parsedState };
-            } catch (e) {
-                console.error("Error loading state:", e);
-                return {
-                    isFasting: false,
-                    fastStartTime: null,
-                    selectedFastHours: 18,
-                    history: []
-                };
-            }
-        }
+        // Circle Progress Setup
+        const radius = progressCircle.r.baseVal.value; const circumference = 2 * Math.PI * radius; progressCircle.style.strokeDasharray = `${circumference} ${circumference}`; progressCircle.style.strokeDashoffset = circumference;
 
-        function saveState() {
-            try {
-                const stateToSave = { ...appState };
-                localStorage.setItem('fastingAppState', JSON.stringify(stateToSave));
-            } catch (e) {
-                console.error("Error saving state:", e);
-            }
-        }
+        // Utility Functions
+        function formatDuration(ms) { if (ms < 0) ms = 0; const totalSeconds = Math.floor(ms / 1000); const hours = Math.floor(totalSeconds / 3600); const minutes = Math.floor((totalSeconds % 3600) / 60); const seconds = totalSeconds % 60; return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`; }
+        function formatDate(date) { return date.toLocaleString([], { dateStyle: 'short', timeStyle: 'short' }); }
+        function formatDateTimeLocal(date) { if (!(date instanceof Date) || isNaN(date)) { return ''; } const localDate = new Date(date.getTime() - (date.getTimezoneOffset() * 60000)); return localDate.toISOString().slice(0, 16); }
+        function formatHistoryDate(date) { if (!(date instanceof Date) || isNaN(date)) { return 'Invalid Date'; } return date.toLocaleDateString(undefined, { weekday: 'short', month: 'numeric', day: 'numeric' }); }
+        function getStartOfWeek(date) { const d = new Date(date); const day = d.getDay(); const diff = d.getDate() - day; d.setDate(diff); d.setHours(0,0,0,0); return d; }
+        function formatWeekHeaderDate(date) { if (!(date instanceof Date) || isNaN(date)) { return ''; } return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }); }
+        function getDayName(date) { if (!(date instanceof Date) || isNaN(date)) { return ''; } return date.toLocaleDateString(undefined, { weekday: 'long' }); }
+        function isSameDay(date1, date2) { if (!(date1 instanceof Date) || !(date2 instanceof Date) || isNaN(date1) || isNaN(date2)) { return false; } return date1.getFullYear() === date2.getFullYear() && date1.getMonth() === date2.getMonth() && date1.getDate() === date2.getDate(); }
+        function getYesterday() { const yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1); yesterday.setHours(0, 0, 0, 0); return yesterday; }
+        function formatPredictedEndTime(date) { if (!(date instanceof Date) || isNaN(date)) { return ''; } const today = new Date(); const tomorrow = new Date(); tomorrow.setDate(today.getDate() + 1); let dayString = ''; if (isSameDay(date, today)) { dayString = 'Today'; } else if (isSameDay(date, tomorrow)) { dayString = 'Tomorrow'; } else { dayString = date.toLocaleDateString(undefined, { weekday: 'short', month: 'numeric', day: 'numeric' }); } const timeString = date.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit', hour12: true }); return `Goal Ends: ${dayString} at ${timeString}`; }
+        function shuffleArray(array) { for (let i = array.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [array[i], array[j]] = [array[j], array[i]]; } return array; }
 
-        function setProgress(percentage) {
-            const offset = CIRCUMFERENCE - (percentage / 100) * CIRCUMFERENCE;
-            progressCircle.style.strokeDashoffset = offset;
-        }
+        // LocalStorage Functions
+        function saveState() { try { localStorage.setItem(APP_STATE_KEY, JSON.stringify(appState)); } catch (e) { console.error("Error saving state:", e); } }
+        function loadState() { try { const savedState = localStorage.getItem(APP_STATE_KEY); if (savedState) { const parsedState = JSON.parse(savedState); if (parsedState.fastStartTime) { parsedState.fastStartTime = new Date(parsedState.fastStartTime); } appState = { ...appState, ...parsedState }; console.log("Loaded state:", appState); } } catch (e) { console.error("Error loading state:", e); localStorage.removeItem(APP_STATE_KEY); } }
+        function getHistory() { try { const history = localStorage.getItem(HISTORY_KEY); return history ? JSON.parse(history) : []; } catch (e) { console.error("Error getting history:", e); localStorage.removeItem(HISTORY_KEY); return []; } }
+        function saveHistory(history) { try { localStorage.setItem(HISTORY_KEY, JSON.stringify(history)); console.log("History saved to localStorage:", history); } catch (e) { console.error("Error saving history:", e); } }
+        function addFastToHistory(start, end, goalHours = null) { console.log("Attempting to add fast:", {start, end, goalHours}); if (!(start instanceof Date) || !(end instanceof Date) || isNaN(start) || isNaN(end)) { console.error("Invalid date objects provided"); return false; } if (end <= start) { console.error("End time must be after start time."); return false; } const history = getHistory(); let newFast = { id: start.getTime(), startTime: start.toISOString(), endTime: end.toISOString(), goalHours: goalHours, durationMs: end - start }; if (history.some(f => f.id === newFast.id)) { console.warn("Duplicate ID detected. Adjusting."); newFast.id += Math.floor(Math.random() * 1000); } history.unshift(newFast); saveHistory(history); console.log("Saved fast:", newFast); return true; }
+        function deleteFastFromHistory(id) { console.log(`--- deleteFastFromHistory called with id: ${id} (type: ${typeof id}) ---`); if (id === null || id === undefined) { console.error("Delete function called with null or undefined ID."); return; } let history = getHistory(); console.log("History before filtering (IDs):", JSON.stringify(history.map(f => f.id))); const initialLength = history.length; const idAsNumber = Number(id); if (isNaN(idAsNumber)) { console.error(`Invalid ID passed to deleteFastFromHistory: ${id}`); return; } const filteredHistory = history.filter(fast => Number(fast.id) !== idAsNumber); const finalLength = filteredHistory.length; console.log(`History length before: ${initialLength}, after filtering: ${finalLength}`); if (initialLength === finalLength) { console.warn("Filtering did not remove any items. ID might not exist or comparison failed."); } saveHistory(filteredHistory); console.log("Calling renderHistory after save attempt."); renderHistory(); updateStreakDisplay(); }
 
-        function formatDuration(ms) {
-            try {
-                const seconds = Math.floor(ms / 1000);
-                const hours = Math.floor(seconds / 3600);
-                const minutes = Math.floor((seconds % 3600) / 60);
-                const secs = seconds % 60;
-                return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
-            } catch (e) {
-                console.error("Error formatting duration:", e);
-                return "00:00:00";
-            }
-        }
+        // UI Rendering / Update Functions
+        function setProgress(percent) { try { const clampedPercent = Math.max(0, Math.min(100, percent)); const offset = circumference - (clampedPercent / 100) * circumference; progressCircle.style.strokeDashoffset = offset; } catch(e) { console.error("Error in setProgress:", e); }}
+        function renderHistoryItem(fast) { try { const end = new Date(fast.endTime); const dayName = getDayName(end); const durationHours = (fast.durationMs / (1000 * 60 * 60)).toFixed(1); const listItem = document.createElement('div'); listItem.className = 'history-item'; listItem.dataset.id = fast.id; const textDiv = document.createElement('div'); textDiv.className = 'history-center-text'; textDiv.innerHTML = `<span class="history-day">${dayName}</span> <span class="history-duration">${durationHours} Hours</span>`; const editButton = document.createElement('button'); editButton.className = 'history-item-button edit-button'; editButton.dataset.id = fast.id; editButton.setAttribute('aria-label', 'Edit Fast'); editButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/><path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"/></svg>`; const deleteButton = document.createElement('button'); deleteButton.className = 'history-item-button delete-button'; deleteButton.dataset.id = fast.id; deleteButton.setAttribute('aria-label', 'Delete Fast'); deleteButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/><path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/></svg>`; listItem.appendChild(textDiv); listItem.appendChild(editButton); listItem.appendChild(deleteButton); return listItem; } catch(e) { console.error("Error rendering history item:", e); return document.createElement('div'); } }
+        function renderHistory() { try { console.log("--- renderHistory called for week starting:", currentWeekStartDate); const allHistory = getHistory(); if (!currentWeekStartDate) { throw new Error("Current week start date not set!"); } const weekStart = new Date(currentWeekStartDate); weekStart.setHours(0, 0, 0, 0); const weekEnd = new Date(weekStart); weekEnd.setDate(weekStart.getDate() + 6); weekEnd.setHours(23, 59, 59, 999); console.log(`Rendering week: ${weekStart.toISOString().substring(0,10)} to ${weekEnd.toISOString().substring(0,10)}`); const weekFasts = allHistory.filter(fast => { const endDate = new Date(fast.endTime); return endDate >= weekStart && endDate <= weekEnd; }); weekHeader.textContent = `${formatWeekHeaderDate(weekStart)} - ${formatWeekHeaderDate(weekEnd)}`; historyList.innerHTML = ''; if (weekFasts.length === 0) { noHistoryMessage.textContent = "No fasts recorded for this week."; noHistoryMessage.style.display = 'block'; } else { noHistoryMessage.style.display = 'none'; weekFasts.forEach(fast => { const itemElement = renderHistoryItem(fast); historyList.appendChild(itemElement); }); } const hasOlderFasts = allHistory.some(fast => new Date(fast.endTime) < weekStart); prevWeekButton.disabled = !hasOlderFasts; const today = new Date(); const thisWeekStart = getStartOfWeek(today); thisWeekStart.setHours(0, 0, 0, 0); nextWeekButton.disabled = weekStart.getTime() >= thisWeekStart.getTime(); console.log(`Prev enabled: ${!prevWeekButton.disabled}, Next enabled: ${!nextWeekButton.disabled}`); } catch(e) { console.error("Error in renderHistory:", e); } }
+        function updateUI(message = null, duration = 0) { try { const standardOptions = Array.from(fastingStyleSelect.options).map(opt => opt.value).filter(val => val !== 'custom'); if (standardOptions.includes(String(appState.selectedFastHours))) { fastingStyleSelect.value = appState.selectedFastHours; } else if (appState.selectedFastHours !== null) { fastingStyleSelect.value = 'custom'; } else { fastingStyleSelect.value = 16; } if (appState.isFasting) { startStopButton.textContent = 'End Fast'; startStopButton.classList.remove('bg-white', 'text-blue-600', 'hover:bg-gray-100'); startStopButton.classList.add('bg-red-500', 'text-white', 'hover:bg-red-600'); stageIndicator.classList.add('is-visible'); predictedEndTimeDisplay.classList.add('is-visible'); if (message) { stageIndicator.textContent = message; } } else { startStopButton.textContent = 'Start Fasting'; startStopButton.classList.remove('bg-red-500', 'text-white', 'hover:bg-red-600'); startStopButton.classList.add('bg-white', 'text-blue-600', 'hover:bg-gray-100'); stageIndicator.textContent = ''; stageIndicator.className = 'stage-default'; stageIndicator.id = 'fasting-stage-indicator'; stageIndicator.classList.remove('is-visible'); predictedEndTimeDisplay.classList.remove('is-visible'); predictedEndTimeDisplay.textContent = ''; timeDisplayText.textContent = '00:00:00'; setProgress(0); progressSvg.classList.remove('goal-reached-svg'); timeDisplay.classList.remove('goal-reached-timedisplay'); }
+             viewHistoryButton.style.color = ''; addManualFastButton.style.backgroundColor = ''; addManualFastButton.style.color = '';
+            if (message && duration > 0) { stageIndicator.classList.add('is-visible'); if (statusTimeout) clearTimeout(statusTimeout); statusTimeout = setTimeout(() => { if (!appState.isFasting) updateUI(); statusTimeout = null; }, duration); } } catch(e) { console.error("Error in updateUI:", e); } }
 
-        function formatPredictedEndTime(date) {
-            try {
-                return `Predicted end: ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
-            } catch (e) {
-                console.error("Error formatting predicted end time:", e);
-                return "Unknown";
-            }
-        }
-
-        function getHistory() {
-            try {
-                return appState.history || [];
-            } catch (e) {
-                console.error("Error retrieving history:", e);
-                return [];
-            }
-        }
-
-        function addFastToHistory(startTime, endTime, goalHours) {
-            try {
-                appState.history = appState.history || [];
-                appState.history.push({
-                    startTime: startTime.toISOString(),
-                    endTime: endTime.toISOString(),
-                    goalHours: goalHours
-                });
-                saveState();
-                return true;
-            } catch (e) {
-                console.error("Error adding fast to history:", e);
-                return false;
-            }
-        }
-
-        function calculateCurrentStreak() {
-            try {
-                const history = getHistory();
-                if (history.length === 0) return 0;
-
-                const fastingDays = new Set();
-                history.forEach(fast => {
-                    const endDate = new Date(fast.endTime);
-                    const dayString = endDate.toLocaleDateString();
-                    fastingDays.add(dayString);
-                });
-
-                let streak = 0;
-                let currentDate = new Date();
-                currentDate.setHours(0, 0, 0, 0);
-
-                while (true) {
-                    const dayString = currentDate.toLocaleDateString();
-                    if (fastingDays.has(dayString)) {
-                        streak++;
-                        currentDate.setDate(currentDate.getDate() - 1);
-                    } else {
-                        break;
-                    }
-                }
-
-                if (streak === 0 && fastingDays.size > 0) {
-                    const yesterday = new Date();
-                    yesterday.setDate(yesterday.getDate() - 1);
-                    yesterday.setHours(0, 0, 0, 0);
-                    if (fastingDays.has(yesterday.toLocaleDateString())) {
-                        streak = 1;
-                        currentDate = new Date(yesterday);
-                        currentDate.setDate(currentDate.getDate() - 1);
-                        while (fastingDays.has(currentDate.toLocaleDateString())) {
-                            streak++;
-                            currentDate.setDate(currentDate.getDate() - 1);
-                        }
-                    }
-                }
-
-                console.log(`Calculated streak: ${streak}`);
-                return streak;
-            } catch (e) {
-                console.error("Error calculating streak:", e);
-                return 0;
-            }
-        }
-
-        function updateStreakDisplay() {
-            const streak = calculateCurrentStreak();
-            streakDisplay.textContent = `Streak: ${streak} day${streak === 1 ? '' : 's'}`;
-            if (streak >= 7) {
-                streakDisplay.style.color = '#22c55e';
-            } else if (streak >= 3) {
-                streakDisplay.style.color = '#3b82f6';
-            } else {
-                streakDisplay.style.color = '';
-            }
-        }
-
+        // Animation Loop
         function animationLoop(timestamp) {
-            try {
-                const now = new Date();
-                const elapsedMs = now - appState.fastStartTime;
-                const goalMs = appState.selectedFastHours * 60 * 60 * 1000;
-                const percentage = Math.min((elapsedMs / goalMs) * 100, 100);
-                setProgress(percentage);
+            // Removed outer try...catch
+            if (!appState.isFasting || !appState.fastStartTime) { animationFrameId = null; return; }
+            const now = Date.now();
+            const elapsedMs = now - appState.fastStartTime.getTime();
+            const elapsedHours = elapsedMs / (1000 * 60 * 60);
+            const goalMs = appState.selectedFastHours * 60 * 60 * 1000;
+            const goalReached = goalMs > 0 && elapsedMs >= goalMs;
+            const percentComplete = (goalMs > 0) ? Math.min(100, (elapsedMs / goalMs) * 100) : 0;
 
-                if (elapsedMs >= goalMs) {
+            setProgress(percentComplete); // Update circle fill
+
+            if (now - lastTextUpdateTimestamp >= 1000) { // Update text/stage once per second
+                timeDisplayText.textContent = formatDuration(elapsedMs);
+                let stageName = "";
+                let stageClass = "";
+                if (goalReached) {
+                    stageName = "Goal Reached!";
+                    stageClass = "stage-goal-reached";
                     progressSvg.classList.add('goal-reached-svg');
                     timeDisplay.classList.add('goal-reached-timedisplay');
+                } else {
+                    // Determine stage based on hours
+                    stageName = "Digesting"; stageClass = "stage-anabolic";
+                    if (elapsedHours >= 4 && elapsedHours < 12) { stageName = "Glycogen Depletion"; stageClass = "stage-catabolic"; }
+                    else if (elapsedHours >= 12 && elapsedHours < 18) { stageName = "Fat Burning"; stageClass = "stage-fat-burning"; }
+                    else if (elapsedHours >= 18 && elapsedHours < 24) { stageName = "Ketosis"; stageClass = "stage-ketosis"; }
+                    else if (elapsedHours >= 24) { stageName = "Autophagy"; stageClass = "stage-autophagy"; }
+                    progressSvg.classList.remove('goal-reached-svg');
+                    timeDisplay.classList.remove('goal-reached-timedisplay');
                 }
-
-                if (timestamp - lastTextUpdateTimestamp >= 1000) {
-                    timeDisplayText.textContent = formatDuration(elapsedMs);
-                    lastTextUpdateTimestamp = timestamp;
-                }
-
-                animationFrameId = requestAnimationFrame(animationLoop);
-            } catch (e) {
-                console.error("Error in animation loop:", e);
+                // Update stage indicator text and style
+                stageIndicator.textContent = stageName;
+                stageIndicator.className = ''; // Clear previous classes
+                stageIndicator.classList.add(stageClass);
+                stageIndicator.classList.add('is-visible');
+                stageIndicator.id = 'fasting-stage-indicator'; // Ensure ID remains
+                lastTextUpdateTimestamp = now;
             }
+            animationFrameId = requestAnimationFrame(animationLoop); // Request next frame
         }
 
+
+        // Core Fasting Logic
         function startFast() {
-            const picker = new WheelPicker({
-                data: [
-                    { id: 'hour', items: Array.from({ length: 24 }, (_, i) => ({ value: i, label: String(i).padStart(2, '0') })) },
-                    { id: 'minute', items: Array.from({ length: 60 }, (_, i) => ({ value: i, label: String(i).padStart(2, '0') })) }
-                ],
-                onChange: (selected) => {
-                    const now = new Date();
-                    const selectedHour = selected.hour;
-                    const selectedMinute = selected.minute;
-                    now.setHours(selectedHour, selectedMinute, 0, 0);
-                    appState.fastStartTime = now;
-                    picker.destroy();
-                    proceedStartFast();
-                }
-            });
-            picker.show();
-        }
-
-        function proceedStartFast() {
+            // Removed outer try...catch
+            console.log("startFast called");
             appState.isFasting = true;
+            appState.fastStartTime = new Date();
             lastTextUpdateTimestamp = 0;
             saveState();
-            updateUI();
-            stageIndicator.classList.add('is-visible');
+            updateUI(); // Sets button state, initial visibility
+            stageIndicator.classList.add('is-visible'); // Ensure visible
 
-            try {
+            // Calculate and display predicted end time
+            try { // Add specific try-catch for date formatting
+                console.log("Calculating predicted end time...");
                 const goalMs = appState.selectedFastHours * 60 * 60 * 1000;
+                console.log("Goal ms:", goalMs);
                 if (goalMs > 0) {
                     const predictedEnd = new Date(appState.fastStartTime.getTime() + goalMs);
-                    const formattedEndTime = formatPredictedEndTime(predictedEnd);
+                    console.log("Calculated predictedEnd:", predictedEnd);
+                    const formattedEndTime = formatPredictedEndTime(predictedEnd); // Call formatting
+                    console.log("Formatted end time:", formattedEndTime);
                     predictedEndTimeDisplay.textContent = formattedEndTime;
                     predictedEndTimeDisplay.classList.add('is-visible');
+                    console.log("Predicted end time displayed.");
                 } else {
                     predictedEndTimeDisplay.textContent = '';
                     predictedEndTimeDisplay.classList.remove('is-visible');
+                     console.log("Goal is 0, predicted end time hidden.");
                 }
             } catch (e) {
-                console.error("Error formatting/displaying predicted end time:", e);
-                predictedEndTimeDisplay.textContent = 'Error calculating end time';
-                predictedEndTimeDisplay.classList.add('is-visible');
+                 console.error("Error formatting/displaying predicted end time:", e);
+                 predictedEndTimeDisplay.textContent = 'Error calculating end time';
+                 predictedEndTimeDisplay.classList.add('is-visible');
             }
 
             progressSvg.classList.remove('goal-reached-svg');
             timeDisplay.classList.remove('goal-reached-timedisplay');
-            if (animationFrameId) {
-                cancelAnimationFrame(animationFrameId);
-            }
+            if (animationFrameId) { cancelAnimationFrame(animationFrameId); }
+            console.log("Starting animation loop...");
             animationFrameId = requestAnimationFrame(animationLoop);
             console.log(`Fast started: ${appState.fastStartTime}, Goal: ${appState.selectedFastHours}h`);
         }
+        function stopFast() { try { console.log("stopFast called"); if (!appState.isFasting) return; if (animationFrameId) { cancelAnimationFrame(animationFrameId); animationFrameId = null; console.log("Stopped animation loop."); } const fastEndTimeActual = new Date(); const success = addFastToHistory(appState.fastStartTime, fastEndTimeActual, appState.selectedFastHours); if (success) { const durationMs = fastEndTimeActual - appState.fastStartTime; appState.isFasting = false; appState.fastStartTime = null; saveState(); updateUI(`Fast completed! Duration: ${formatDuration(durationMs)}`, 3000); console.log(`Fast stopped: ${fastEndTimeActual}, Duration: ${formatDuration(durationMs)}`); updateStreakDisplay(); } else { updateUI("Error saving completed fast.", 3000); } setProgress(0); timeDisplayText.textContent = '00:00:00'; } catch(e) { console.error("Error in stopFast:", e); } }
 
-        function stopFast() {
-            const picker = new WheelPicker({
-                data: [
-                    { id: 'hour', items: Array.from({ length: 24 }, (_, i) => ({ value: i, label: String(i).padStart(2, '0') })) },
-                    { id: 'minute', items: Array.from({ length: 60 }, (_, i) => ({ value: i, label: String(i).padStart(2, '0') })) }
-                ],
-                onChange: (selected) => {
-                    const now = new Date();
-                    const selectedHour = selected.hour;
-                    const selectedMinute = selected.minute;
-                    now.setHours(selectedHour, selectedMinute, 0, 0);
-                    const fastEndTimeActual = now;
-                    picker.destroy();
-                    proceedStopFast(fastEndTimeActual);
+        // Modal Control Functions
+        function showModal(modalOverlay) { hideAllModals(); modalOverlay.classList.add('is-visible'); console.log(`Showing modal: ${modalOverlay.id}`); }
+        function hideModal(modalOverlay) { modalOverlay.classList.remove('is-visible'); const errorMsg = modalOverlay.querySelector('.error-message'); if (errorMsg) errorMsg.style.display = 'none'; console.log(`Hiding modal: ${modalOverlay.id}`); }
+        function hideAllModals() { document.querySelectorAll('.modal-overlay').forEach(modal => modal.classList.remove('is-visible')); console.log("Hiding all modals."); }
+        function showDeleteConfirmModal(id) { fastIdToDelete = id; console.log(`Stored fastIdToDelete: ${fastIdToDelete}`); showModal(confirmDeleteModalOverlay); }
+        function showAddModal() { addStartTimeInput.value = ''; addEndTimeInput.value = ''; addErrorMessage.style.display = 'none'; addErrorMessage.textContent = ''; showModal(addModalOverlay); }
+        function showEditModal(fastId) { const history = getHistory(); const fastToEdit = history.find(f => f.id === fastId); if (!fastToEdit) { console.error(`Fast with ID ${fastId} not found for editing.`); updateUI("Error: Could not find fast to edit.", 3000); return; } editErrorMessage.style.display = 'none'; editErrorMessage.textContent = ''; editFastIdInput.value = fastId; editStartTimeInput.value = formatDateTimeLocal(new Date(fastToEdit.startTime)); editEndTimeInput.value = formatDateTimeLocal(new Date(fastToEdit.endTime)); showModal(editModalOverlay); }
+        function showCustomDurationModal() { customErrorMessage.style.display = 'none'; customErrorMessage.textContent = ''; const currentHours = Number(appState.selectedFastHours); if (!isNaN(currentHours) && currentHours > 0) { customHoursInput.value = currentHours; } else { customHoursInput.value = ''; } showModal(customDurationModalOverlay); }
+        function showInfoModal() { if (!infoModalTextContent.hasChildNodes() || infoModalTextContent.children.length <= 1) { populateInfoModal(); } showModal(infoModalOverlay); }
+        function populateInfoModal() { try { const disclaimer = infoModalTextContent.querySelector('.disclaimer'); infoModalTextContent.innerHTML = ''; const info = { "16:8 Intermittent": "Fast for 16 hours, eat within an 8-hour window. Popular starting point, may aid weight management and metabolic health. Often fits well with daily schedules.", "18:6 Intermittent": "Slightly longer 18-hour fasting window. May offer enhanced benefits like increased autophagy compared to 16:8. Good step up for those comfortable with 16:8.", "20:4 (Warrior Diet)": "More restrictive 4-hour eating window, often involving one large meal. May promote deeper ketosis and autophagy. Can be challenging socially.", "OMAD (One Meal A Day)": "Effectively a ~23-hour fast. Simple for meal tracking, may enhance insulin sensitivity. Requires careful planning to ensure adequate nutrient intake in one meal.", "36-Hour Fast": "Involves fasting for a full day (e.g., eat dinner Monday, fast all Tuesday, eat breakfast Wednesday). Significant potential for autophagy and metabolic reset. More demanding, usually done less frequently (e.g., 1-2 times per week/month)." }; for (const [title, text] of Object.entries(info)) { const titleEl = document.createElement('h4'); titleEl.textContent = title; const textEl = document.createElement('p'); textEl.textContent = text; infoModalTextContent.appendChild(titleEl); infoModalTextContent.appendChild(textEl); } if (disclaimer) { infoModalTextContent.appendChild(disclaimer); } } catch(e) { console.error("Error populating info modal:", e); } }
+
+        // Streak Calculation and Display Logic
+        function calculateCurrentStreak() { try { const history = getHistory(); if (history.length === 0) return 0; let streak = 0; let expectedDate = getYesterday(); const completedFastDates = new Set(); history.forEach(fast => { const endDate = new Date(fast.endTime); completedFastDates.add(endDate.toLocaleDateString()); }); const todayStr = (new Date()).toLocaleDateString(); let fastEndedToday = completedFastDates.has(todayStr); if (completedFastDates.has(expectedDate.toLocaleDateString())) { streak = 1; while (true) { expectedDate.setDate(expectedDate.getDate() - 1); if (completedFastDates.has(expectedDate.toLocaleDateString())) { streak++; } else { break; } } } else { streak = fastEndedToday ? 1 : 0; } console.log(`Calculated streak: ${streak}`); return streak; } catch(e) { console.error("Error calculating streak:", e); return 0; } }
+        function updateStreakDisplay() { try { const streak = calculateCurrentStreak(); streakNumber.textContent = streak; streakDisplay.classList.remove('streak-tier-0', 'streak-tier-1', 'streak-tier-2', 'streak-tier-3'); if (streak === 0) { streakDisplay.classList.add('streak-tier-0'); } else if (streak >= 1 && streak <= 6) { streakDisplay.classList.add('streak-tier-1'); } else if (streak >= 7 && streak <= 13) { streakDisplay.classList.add('streak-tier-2'); } else { streakDisplay.classList.add('streak-tier-3'); } console.log(`Updated streak display: ${streak} days`); } catch(e) { console.error("Error updating streak display:", e); } }
+
+        // Quote Display Logic
+        function updateQuoteDisplay() { try { if (!quoteDisplay || funnyQuotes.length === 0) return; let availableIndices = []; try { const storedIndices = localStorage.getItem(QUOTE_INDICES_KEY); if (storedIndices) { availableIndices = JSON.parse(storedIndices); } } catch (e) { console.error("Error reading quote indices", e); availableIndices = []; } if (!Array.isArray(availableIndices) || availableIndices.length === 0) { console.log("Resetting quote cycle."); availableIndices = Array.from(funnyQuotes.keys()); shuffleArray(availableIndices); } const randomIndexInAvailable = Math.floor(Math.random() * availableIndices.length); const quoteIndex = availableIndices[randomIndexInAvailable]; availableIndices.splice(randomIndexInAvailable, 1); try { localStorage.setItem(QUOTE_INDICES_KEY, JSON.stringify(availableIndices)); } catch (e) { console.error("Error saving quote indices", e); } if (quoteIndex >= 0 && quoteIndex < funnyQuotes.length) { quoteDisplay.textContent = funnyQuotes[quoteIndex]; console.log(`Quote updated. Index: ${quoteIndex}. Remaining: ${availableIndices.length}`); } else { console.error("Invalid quote index."); const fallbackIndex = Math.floor(Math.random() * funnyQuotes.length); quoteDisplay.textContent = funnyQuotes[fallbackIndex]; } } catch(e) { console.error("Error updating quote:", e); if(quoteDisplay) quoteDisplay.textContent = "Keep going!"; } }
+
+        // Event Listeners
+        fastingStyleSelect.addEventListener('change', (event) => { const styleValue = event.target.value; const previousHours = appState.selectedFastHours; if (styleValue === 'custom') { console.log("Custom duration selected in settings."); showCustomDurationModal(previousHours); } else { const hours = parseInt(styleValue, 10); if (!isNaN(hours)) { appState.selectedFastHours = hours; console.log(`Selected default fast duration: ${appState.selectedFastHours} hours`); saveState(); } else { console.error("Invalid standard duration selected:", styleValue); } } });
+        startStopButton.addEventListener('click', () => { if (appState.isFasting) { stopFast(); } else { startFast(); } });
+        viewHistoryButton.addEventListener('click', () => { console.log("View History clicked."); currentWeekStartDate = getStartOfWeek(new Date()); renderHistory(); historyPanel.classList.remove('translate-y-full'); historyPanel.classList.add('is-active'); console.log("History panel shown for current week."); });
+        closeHistoryButton.addEventListener('click', () => { historyPanel.classList.add('translate-y-full'); historyPanel.classList.remove('is-active'); console.log("History panel hidden."); });
+        addManualFastButton.addEventListener('click', () => { console.log("Add Manual Entry button clicked."); showAddModal(); });
+        historyList.addEventListener('click', (event) => { console.log("Click detected inside historyList."); const target = event.target; const deleteButton = target.closest('.delete-button'); const editButton = target.closest('.edit-button'); if (deleteButton) { const fastId = deleteButton.dataset.id ? parseInt(deleteButton.dataset.id, 10) : null; console.log(`Delete button clicked for fastId: ${fastId}`); if (fastId) { showDeleteConfirmModal(fastId); } else { console.error("Could not find fastId for deletion."); } } else if (editButton) { const fastId = editButton.dataset.id ? parseInt(editButton.dataset.id, 10) : null; console.log(`Edit button clicked for fastId: ${fastId}`); if (fastId) { showEditModal(fastId); } else { console.error("Could not find fastId for editing."); } } else { console.log("Clicked element is not an edit or delete button."); } });
+        confirmDeleteYesButton.addEventListener('click', () => { console.log(`Inside Yes Delete: fastIdToDelete = ${fastIdToDelete} (type: ${typeof fastIdToDelete})`); if (fastIdToDelete !== null) { deleteFastFromHistory(fastIdToDelete); updateUI("Fast deleted.", 2000); fastIdToDelete = null; } else { console.error("No fastId was stored for deletion."); } hideModal(confirmDeleteModalOverlay); });
+        confirmDeleteNoButton.addEventListener('click', () => { console.log("Cancelled deletion via modal."); fastIdToDelete = null; hideModal(confirmDeleteModalOverlay); });
+        addSaveButton.addEventListener('click', () => { const startTimeStr = addStartTimeInput.value; const endTimeStr = addEndTimeInput.value; addErrorMessage.style.display = 'none'; if (!startTimeStr || !endTimeStr) { addErrorMessage.textContent = "Please select both start and end times."; addErrorMessage.style.display = 'block'; return; } const startDate = new Date(startTimeStr); const endDate = new Date(endTimeStr); if (isNaN(startDate) || isNaN(endDate)) { addErrorMessage.textContent = "Invalid date/time format."; addErrorMessage.style.display = 'block'; return; } if (endDate <= startDate) { addErrorMessage.textContent = "End time must be after start time."; addErrorMessage.style.display = 'block'; return; } console.log("Saving manually added fast:", startDate, endDate); const success = addFastToHistory(startDate, endDate, null); if (success) { renderHistory(); hideModal(addModalOverlay); updateUI("Manual fast added successfully!", 2000); updateStreakDisplay(); } else { addErrorMessage.textContent = "Failed to save fast. Please check times."; addErrorMessage.style.display = 'block'; } });
+        addCancelButton.addEventListener('click', () => { hideModal(addModalOverlay); });
+        editSaveButton.addEventListener('click', () => { const fastId = parseInt(editFastIdInput.value, 10); const startTimeStr = editStartTimeInput.value; const endTimeStr = editEndTimeInput.value; editErrorMessage.style.display = 'none'; if (!fastId || !startTimeStr || !endTimeStr) { editErrorMessage.textContent = "Missing data for edit."; editErrorMessage.style.display = 'block'; return; } const newStartDate = new Date(startTimeStr); const newEndDate = new Date(endTimeStr); if (isNaN(newStartDate) || isNaN(newEndDate)) { editErrorMessage.textContent = "Invalid date/time format."; editErrorMessage.style.display = 'block'; return; } if (newEndDate <= newStartDate) { editErrorMessage.textContent = "End time must be after start time."; editErrorMessage.style.display = 'block'; return; } console.log(`Saving edits for fast ID: ${fastId}`); let history = getHistory(); const fastIndex = history.findIndex(f => f.id === fastId); if (fastIndex === -1) { console.error(`Fast with ID ${fastId} not found in history during save.`); editErrorMessage.textContent = "Error: Could not find fast to save."; editErrorMessage.style.display = 'block'; return; } history[fastIndex].startTime = newStartDate.toISOString(); history[fastIndex].endTime = newEndDate.toISOString(); history[fastIndex].durationMs = newEndDate - newStartDate; saveHistory(history); renderHistory(); hideModal(editModalOverlay); updateUI("Fast edited successfully!", 2000); updateStreakDisplay(); });
+        editCancelButton.addEventListener('click', () => { hideModal(editModalOverlay); });
+        customSetButton.addEventListener('click', () => { customErrorMessage.style.display = 'none'; const hoursValue = customHoursInput.value; const hours = parseFloat(hoursValue); if (hoursValue.trim() === '' || isNaN(hours) || hours <= 0) { customErrorMessage.textContent = "Please enter a valid positive number of hours."; customErrorMessage.style.display = 'block'; return; } if (hours > 168) { customErrorMessage.textContent = "Duration seems too long (max 168 hours)."; customErrorMessage.style.display = 'block'; return; } console.log(`Setting custom duration: ${hours} hours`); appState.selectedFastHours = hours; saveState(); updateUI(`Custom goal set: ${hours} hours`, 2500); hideModal(customDurationModalOverlay); fastingStyleSelect.value = 'custom'; });
+        customCancelButton.addEventListener('click', () => { hideModal(customDurationModalOverlay); console.log("Custom duration cancelled, reverting dropdown."); updateUI(); });
+        prevWeekButton.addEventListener('click', () => { if (currentWeekStartDate) { currentWeekStartDate.setDate(currentWeekStartDate.getDate() - 7); console.log("Navigating to previous week:", currentWeekStartDate); renderHistory(); } });
+        nextWeekButton.addEventListener('click', () => { if (currentWeekStartDate) { currentWeekStartDate.setDate(currentWeekStartDate.getDate() + 7); console.log("Navigating to next week:", currentWeekStartDate); renderHistory(); } });
+        infoButton.addEventListener('click', () => { console.log("Info button clicked."); showInfoModal(); });
+        infoCloseButton.addEventListener('click', () => { hideModal(infoModalOverlay); });
+        settingsButton.addEventListener('click', () => { console.log("Settings button clicked."); showModal(settingsModalOverlay); });
+        settingsCloseButton.addEventListener('click', () => { hideModal(settingsModalOverlay); });
+
+        // Initial App Load
+        function initializeApp() {
+            try {
+                console.log("Initializing app...");
+                loadState();
+                currentWeekStartDate = getStartOfWeek(new Date());
+                updateUI(); // Set initial UI state
+
+                if (appState.isFasting && appState.fastStartTime) {
+                    console.log("Resuming ongoing fast...");
+                     const now = Date.now(); const elapsedMs = now - appState.fastStartTime.getTime();
+                     const goalMs = appState.selectedFastHours * 60 * 60 * 1000;
+                     try { // Specific try-catch for date formatting on init
+                         if (goalMs > 0) {
+                            const predictedEnd = new Date(appState.fastStartTime.getTime() + goalMs);
+                            predictedEndTimeDisplay.textContent = formatPredictedEndTime(predictedEnd);
+                            predictedEndTimeDisplay.classList.add('is-visible');
+                         } else {
+                             predictedEndTimeDisplay.classList.remove('is-visible');
+                             predictedEndTimeDisplay.textContent = '';
+                         }
+                     } catch(e) {
+                         console.error("Error formatting/displaying predicted end time on init:", e);
+                         predictedEndTimeDisplay.textContent = 'Error calculating end time';
+                         predictedEndTimeDisplay.classList.add('is-visible');
+                     }
+                     const percentComplete = (goalMs > 0) ? Math.min(100, (elapsedMs / goalMs) * 100) : 0; setProgress(percentComplete); timeDisplayText.textContent = formatDuration(elapsedMs);
+                     lastTextUpdateTimestamp = 0;
+                    if (animationFrameId) cancelAnimationFrame(animationFrameId);
+                    animationFrameId = requestAnimationFrame(animationLoop);
+                } else {
+                    setProgress(0);
+                    predictedEndTimeDisplay.classList.remove('is-visible');
+                    predictedEndTimeDisplay.textContent = '';
                 }
-            });
-            picker.show();
-        }
-
-        function proceedStopFast(fastEndTimeActual) {
-            if (animationFrameId) {
-                cancelAnimationFrame(animationFrameId);
-                animationFrameId = null;
-            }
-            const success = addFastToHistory(appState.fastStartTime, fastEndTimeActual, appState.selectedFastHours);
-            if (success) {
-                const durationMs = fastEndTimeActual - appState.fastStartTime;
-                appState.isFasting = false;
-                appState.fastStartTime = null;
-                saveState();
-                updateUI(`Fast completed! Duration: ${formatDuration(durationMs)}`, 3000);
+                historyPanel.classList.remove('is-active');
+                hideAllModals();
                 updateStreakDisplay();
-            } else {
-                updateUI("Error saving completed fast.", 3000);
+                updateQuoteDisplay();
+                console.log("App Initialized successfully.");
+            } catch (e) {
+                 console.error("Critical Error during Initialization:", e);
+                 document.body.innerHTML = '<div style="color: red; padding: 20px;">App failed to initialize. Please try clearing website data or contact support.</div>';
             }
-            setProgress(0);
-            timeDisplayText.textContent = '00:00:00';
         }
+        document.addEventListener('DOMContentLoaded', initializeApp);
 
-        function updateUI(message = '', timeout = 0) {
-            startBtn.disabled = appState.isFasting;
-            stopBtn.disabled = !appState.isFasting;
-            statusMessage.textContent = message;
-            if (timeout > 0) {
-                setTimeout(() => {
-                    if (statusMessage.textContent === message) {
-                        statusMessage.textContent = '';
-                    }
-                }, timeout);
-            }
-            if (!appState.isFasting) {
-                stageIndicator.classList.remove('is-visible');
-                predictedEndTimeDisplay.classList.remove('is-visible');
-                setProgress(0);
-                timeDisplayText.textContent = '00:00:00';
-            }
-            updateStreakDisplay();
-        }
-
-        startBtn.addEventListener('click', startFast);
-        stopBtn.addEventListener('click', stopFast);
-
-        goalButtons.forEach(btn => {
-            btn.addEventListener('click', () => {
-                if (appState.isFasting) return;
-                goalButtons.forEach(b => b.classList.remove('selected'));
-                btn.classList.add('selected');
-                appState.selectedFastHours = parseInt(btn.dataset.hours);
-                saveState();
-                updateUI(`Fasting goal set to ${appState.selectedFastHours} hours`);
-            });
-            if (parseInt(btn.dataset.hours) === appState.selectedFastHours) {
-                btn.classList.add('selected');
-            }
-        });
-
-        updateUI();
-        if (appState.isFasting) {
-            animationFrameId = requestAnimationFrame(animationLoop);
-            stageIndicator.classList.add('is-visible');
-            const goalMs = appState.selectedFastHours * 60 * 60 * 1000;
-            const predictedEnd = new Date(appState.fastStartTime.getTime() + goalMs);
-            predictedEndTimeDisplay.textContent = formatPredictedEndTime(predictedEnd);
-            predictedEndTimeDisplay.classList.add('is-visible');
-        }
     </script>
+
 </body>
 </html>
